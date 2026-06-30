@@ -1,0 +1,64 @@
+# Единый Blueprint для монорепозитория: бот + сайт в одном GitHub-репозитории.
+# Положите этот файл В КОРЕНЬ репозитория (рядом с папками telegram-bot-python/
+# и website/, НЕ внутри них). Render найдёт его автоматически при New → Blueprint
+# и создаст оба сервиса разом, каждый из своей подпапки (rootDir).
+#
+# Если используете Node-версию бота вместо Python — замените блок sourdough-bakery-bot
+# на содержимое telegram-bot-node/render.yaml (с поправкой rootDir на telegram-bot-node).
+
+services:
+  # ---------------- TELEGRAM-БОТ (Python) ----------------
+  - type: web
+    name: sourdough-bakery-bot
+    runtime: python
+    rootDir: telegram-bot-python   # ключевая строка: говорит Render, из какой папки собирать
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: BOT_USERNAME
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: CLAUDE_MODEL
+        value: "claude-haiku-4-5-20251001"
+      - key: ADMIN_CHAT_ID
+        sync: false
+      - key: SHEETS_WEBHOOK_URL
+        sync: false
+      - key: BAKE_WEEKDAYS
+        value: "2,4,6"
+      - key: REVIEW_DELAY_HOURS
+        value: "4"
+      - key: YOOKASSA_SHOP_ID
+        sync: false
+      - key: YOOKASSA_SECRET_KEY
+        sync: false
+      - key: RETURN_URL
+        sync: false
+      - key: USE_WEBHOOK
+        value: "true"
+      - key: WEBHOOK_SECRET
+        generateValue: true
+
+  # ---------------- САЙТ (Static Site) ----------------
+  - type: web
+    name: sourdough-bakery-website
+    runtime: static
+    rootDir: website                # ключевая строка: собирается из подпапки website/
+    buildCommand: bash build.sh
+    staticPublishPath: .
+    envVars:
+      # property: host отдаёт только "слаг" сервиса бота (например sourdough-bakery-bot),
+      # а не полный публичный адрес — hostport для этого НЕ подходит, он предназначен
+      # только для приватной сети между сервисами Render, недоступен из браузера
+      # посетителя сайта. Полный https-адрес build.sh собирает сам из этого слага.
+      - key: BOT_HOST
+        fromService:
+          type: web
+          name: sourdough-bakery-bot
+          property: host
