@@ -12,7 +12,7 @@ services:
     name: sourdough-bakery-bot
     runtime: python
     rootDir: telegram-bot-python   # ключевая строка: говорит Render, из какой папки собирать
-    plan: starter
+    plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: python main.py
     envVars:
