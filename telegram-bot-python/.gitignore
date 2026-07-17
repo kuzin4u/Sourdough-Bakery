@@ -1,0 +1,13 @@
+venv/
+__pycache__/
+*.pyc
+.env
+orders.json
+carts.json
+stoplist.json
+links.json
+subscriptions.json
+promocodes.json
+pendingReviews.json
+drafts.json
+broadcast_optout.json
