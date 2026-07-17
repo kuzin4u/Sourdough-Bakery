@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: sourdough-bakery-website
+    runtime: static
+    buildCommand: bash build.sh
+    staticPublishPath: .
+    envVars:
+      # Публичный адрес вашего Telegram-бота на Render (тот же, что вписывали бы
+      # вручную в настройках виджета). Пример: https://sourdough-bakery-81ge.onrender.com
+      # БЕЗ слэша на конце.
+      - key: BOT_API_URL
+        sync: false
