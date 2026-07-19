@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Пекарня — Панель администратора</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --crust:#3E2A1E; --cream:#F6EEE0; --gold:#C8932B; --brown:#7A5037;
+  --beige:#EFE2C8; --char:#241710; --paper:#FBF6EC; --line:rgba(36,23,16,0.14);
+  --good:#5A8A3A; --bad:#B8543F; --blue:#2A6EBB;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0; background:var(--paper); font-family:'Inter',sans-serif; color:var(--char);}
+body{padding:20px; min-height:100vh;}
+
+/* ===== ШАПКА ===== */
+.admin-header{
+  background:var(--crust); color:var(--cream);
+  border-radius:16px; padding:18px 22px; margin-bottom:20px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.admin-header-left{display:flex; align-items:center; gap:12px;}
+.admin-logo{font-size:28px;}
+.admin-title{font-family:'Fraunces',serif; font-size:20px; font-weight:700;}
+.admin-sub{font-size:12px; opacity:0.6; margin-top:2px;}
+.admin-lock{font-size:18px; cursor:pointer; opacity:0.7; padding:6px;}
+.admin-lock:hover{opacity:1;}
+
+/* ===== LOGIN ===== */
+.login-screen{
+  max-width:360px; margin:60px auto; background:white;
+  border-radius:18px; padding:32px 28px; border:1px solid var(--line);
+  box-shadow:0 8px 32px rgba(36,23,16,0.10);
+  text-align:center;
+}
+.login-icon{font-size:48px; margin-bottom:12px;}
+.login-title{font-family:'Fraunces',serif; font-size:22px; font-weight:700; margin:0 0 6px;}
+.login-sub{font-size:13px; color:var(--brown); margin:0 0 24px; opacity:0.8;}
+.login-input{
+  width:100%; border:2px solid var(--line); border-radius:10px; padding:12px 14px;
+  font-size:15px; outline:none; font-family:'Inter',sans-serif; color:var(--char);
+  margin-bottom:14px; transition:border-color 0.15s;
+}
+.login-input:focus{border-color:var(--gold);}
+.login-btn{
+  width:100%; background:var(--crust); color:var(--cream); border:none;
+  border-radius:10px; padding:13px; font-size:15px; font-weight:600;
+  cursor:pointer; font-family:'Inter',sans-serif; transition:background 0.15s;
+}
+.login-btn:hover{background:var(--brown);}
+.login-error{color:var(--bad); font-size:13px; margin-top:8px; display:none;}
+
+/* ===== СЕКЦИИ ===== */
+.section{background:white; border-radius:16px; padding:20px 22px; margin-bottom:16px; border:1px solid var(--line);}
+.section-title{font-family:'Fraunces',serif; font-size:17px; font-weight:700; color:var(--crust); margin:0 0 16px; display:flex; align-items:center; gap:8px;}
+.section-title span{font-size:20px;}
+
+/* ===== ТАБЛИЦА КАТАЛОГА ===== */
+.product-row{
+  display:grid; grid-template-columns:1fr 80px 80px auto;
+  gap:10px; align-items:center; padding:12px 0;
+  border-bottom:1px solid var(--line);
+}
+.product-row:last-child{border-bottom:none;}
+.product-row-header{
+  display:grid; grid-template-columns:1fr 80px 80px auto;
+  gap:10px; padding:6px 0 10px; font-size:11px; font-weight:600;
+  text-transform:uppercase; letter-spacing:0.8px; color:var(--brown); opacity:0.7;
+}
+.prod-name-block{}
+.prod-name{font-weight:600; font-size:14px; color:var(--crust); margin:0 0 3px;}
+.prod-desc-edit{
+  font-size:12px; color:var(--brown); background:none; border:none; padding:0;
+  font-family:'Inter',sans-serif; width:100%; cursor:text; opacity:0.8;
+  resize:none; overflow:hidden; outline:none; line-height:1.4;
+}
+.prod-desc-edit:focus{opacity:1;}
+.field{
+  border:1.5px solid var(--line); border-radius:8px; padding:8px 10px;
+  font-size:14px; font-weight:600; color:var(--char); font-family:'Inter',sans-serif;
+  outline:none; width:100%; transition:border-color 0.15s;
+}
+.field:focus{border-color:var(--gold);}
+.stop-toggle{
+  width:40px; height:22px; border-radius:11px; border:none; cursor:pointer;
+  position:relative; transition:background 0.2s; flex-shrink:0;
+}
+.stop-toggle.active{background:#D0E8C0;}
+.stop-toggle.inactive{background:#F0C8C0;}
+.stop-toggle::after{
+  content:''; position:absolute; top:3px; left:3px; width:16px; height:16px;
+  border-radius:50%; background:white; transition:transform 0.2s;
+  box-shadow:0 1px 3px rgba(0,0,0,0.2);
+}
+.stop-toggle.active::after{transform:translateX(18px); background:var(--good);}
+.stop-toggle.inactive::after{background:var(--bad);}
+.stop-label{font-size:10.5px; color:var(--brown); text-align:center; margin-top:3px; white-space:nowrap;}
+
+/* ===== КНОПКИ ===== */
+.btn{
+  border:none; border-radius:10px; padding:11px 18px;
+  font-size:14px; font-weight:600; cursor:pointer;
+  font-family:'Inter',sans-serif; transition:opacity 0.15s;
+  display:inline-flex; align-items:center; gap:6px;
+}
+.btn:hover{opacity:0.85;}
+.btn-primary{background:var(--crust); color:var(--cream);}
+.btn-gold{background:var(--gold); color:white;}
+.btn-outline{background:transparent; color:var(--brown); border:1.5px solid var(--line);}
+.btn-danger{background:#FDE8E4; color:var(--bad);}
+.btn-sm{padding:7px 12px; font-size:12.5px; border-radius:8px;}
+.btn-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;}
+
+/* ===== ПАРОЛЬ ===== */
+.pass-hint{font-size:12px; color:var(--brown); opacity:0.7; margin-top:8px;}
+.pass-row{display:flex; gap:10px; align-items:flex-start;}
+.pass-row .field{flex:1;}
+
+/* ===== СТАТУС ===== */
+.status-bar{
+  display:flex; align-items:center; gap:8px; padding:10px 14px;
+  border-radius:10px; font-size:13px; font-weight:500; margin-bottom:12px;
+}
+.status-ok{background:#E8F5E0; color:var(--good);}
+.status-warn{background:#FEF3E2; color:#B87020;}
+.status-err{background:#FDE8E4; color:var(--bad);}
+
+/* ===== BOT LINK ===== */
+.bot-link{
+  display:flex; align-items:center; gap:12px; padding:14px 16px;
+  background:linear-gradient(135deg, #EFF5FB, #E8F0F8);
+  border-radius:12px; border:1px solid rgba(42,110,187,0.2);
+  text-decoration:none; color:var(--char);
+}
+.bot-link-icon{font-size:24px;}
+.bot-link-text{flex:1;}
+.bot-link-name{font-weight:600; font-size:14px; color:var(--blue);}
+.bot-link-sub{font-size:12px; color:var(--brown); opacity:0.8; margin-top:2px;}
+.bot-link-arrow{font-size:18px; color:var(--blue); opacity:0.6;}
+</style>
+</head>
+<body>
+
+<!-- ЭКРАН ВХОДА (по умолчанию скрыт после авторизации) -->
+<div id="loginScreen" style="display:none">
+  <div class="login-screen">
+    <div class="login-icon">🔐</div>
+    <h2 class="login-title">Панель администратора</h2>
+    <p class="login-sub">Пекарня на закваске · Масса Матере</p>
+    <input type="password" class="login-input" id="passInput" placeholder="Введите пароль" autocomplete="current-password">
+    <button class="login-btn" onclick="doLogin()">Войти</button>
+    <p class="login-error" id="loginError">Неверный пароль</p>
+    <p class="pass-hint" style="margin-top:16px">По умолчанию: <b>bread2024</b><br>Поменяйте в разделе «Безопасность» после входа</p>
+  </div>
+</div>
+
+<!-- ОСНОВНАЯ ПАНЕЛЬ -->
+<div id="adminPanel">
+  <div class="admin-header">
+    <div class="admin-header-left">
+      <span class="admin-logo">🍞</span>
+      <div>
+        <div class="admin-title">Панель администратора</div>
+        <div class="admin-sub">Масса Матере · управление пекарней</div>
+      </div>
+    </div>
+    <span class="admin-lock" onclick="logout()" title="Выйти">🔒</span>
+  </div>
+
+  <!-- СТАТУС БОТА -->
+  <div class="section">
+    <div class="section-title"><span>📡</span> Статус системы</div>
+    <div class="status-bar" id="statusBar">⏳ Проверка связи с ботом...</div>
+    <a class="bot-link" href="https://t.me/Sourdough_Bakery_Bot" target="_blank">
+      <span class="bot-link-icon">🤖</span>
+      <div class="bot-link-text">
+        <div class="bot-link-name">@Sourdough_Bakery_Bot</div>
+        <div class="bot-link-sub">Открыть бота в Telegram</div>
+      </div>
+      <span class="bot-link-arrow">↗</span>
+    </a>
+  </div>
+
+  <!-- КАТАЛОГ -->
+  <div class="section">
+    <div class="section-title"><span>🛒</span> Каталог и стоп-лист</div>
+    <div class="product-row-header">
+      <div>Позиция / описание</div>
+      <div>Вес (г)</div>
+      <div>Цена (₽)</div>
+      <div>В наличии</div>
+    </div>
+    <div id="productRows"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveProducts()">💾 Сохранить каталог</button>
+      <button class="btn btn-outline btn-sm" onclick="resetProducts()">↩ Сбросить к исходному</button>
+    </div>
+  </div>
+
+  <!-- ССЫЛКИ НА СЕРВИСЫ -->
+  <div class="section">
+    <div class="section-title"><span>🔗</span> Быстрые ссылки</div>
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <a class="bot-link" id="linkShop" href="#" target="_blank">
+        <span class="bot-link-icon">🌐</span>
+        <div class="bot-link-text">
+          <div class="bot-link-name">Витрина (клиентская версия)</div>
+          <div class="bot-link-sub" id="linkShopUrl">sourdough-showcase.html</div>
+        </div>
+        <span class="bot-link-arrow">↗</span>
+      </a>
+      <a class="bot-link" href="https://dashboard.render.com" target="_blank">
+        <span class="bot-link-icon">⚙️</span>
+        <div class="bot-link-text">
+          <div class="bot-link-name">Render Dashboard</div>
+          <div class="bot-link-sub">Логи, переменные окружения, деплои</div>
+        </div>
+        <span class="bot-link-arrow">↗</span>
+      </a>
+      <a class="bot-link" id="linkSheets" href="https://docs.google.com/spreadsheets/d/1MmgGW3bAWkfKuOCbUhSBm7T3Ek-7r2RkeP05ij6a0H4/edit" target="_blank">
+        <span class="bot-link-icon">📊</span>
+        <div class="bot-link-text">
+          <div class="bot-link-name">Google Таблица заказов</div>
+          <div class="bot-link-sub">Открыть журнал заказов</div>
+        </div>
+        <span class="bot-link-arrow">↗</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- НАСТРОЙКИ ИНТЕГРАЦИЙ (перенесено из клиентской версии) -->
+  <div class="section">
+    <div class="section-title"><span>🔌</span> Настройки интеграций</div>
+    <p style="font-size:13px; color:var(--brown); margin:0 0 16px; opacity:0.85;">Эти настройки управляют связью виджета с ботом, Google Таблицей и моделью AI-консультанта. Они сохраняются в этом браузере и автоматически применяются клиентской версией виджета (если открыта в том же браузере).</p>
+
+    <label style="font-size:13px; font-weight:600; color:var(--crust); display:block; margin-bottom:6px;">Google Sheets Webhook URL</label>
+    <input class="field" type="text" id="adminSheetsUrl" placeholder="https://script.google.com/macros/s/.../exec">
+    <p style="font-size:12px; color:var(--brown); opacity:0.7; margin:4px 0 14px;">URL Apps Script для записи заказов в Google Таблицу. Один и тот же URL — и для бота, и для сайта.</p>
+
+    <label style="font-size:13px; font-weight:600; color:var(--crust); display:block; margin-bottom:6px;">Модель Claude для AI-консультанта</label>
+    <select class="field" id="adminClaudeModel" style="padding:10px;">
+      <option value="claude-haiku-4-5-20251001">Haiku 4.5 — дешевле, для простых вопросов хватает</option>
+      <option value="claude-sonnet-4-6">Sonnet 4.6 — более развёрнутые ответы, дороже ~3x</option>
+    </select>
+    <p style="font-size:12px; color:var(--brown); opacity:0.7; margin:4px 0 14px;">Если ответы консультанта кажутся слишком сухими — переключите на Sonnet.</p>
+
+    <label style="font-size:13px; font-weight:600; color:var(--crust); display:block; margin-bottom:6px;">Адрес сервера бота</label>
+    <input class="field" type="text" id="adminBotUrl" placeholder="https://sourdough-bot.onrender.com">
+    <p style="font-size:12px; color:var(--brown); opacity:0.7; margin:4px 0 14px;">При деплое через Render подставляется автоматически (build.sh). Здесь можно задать вручную — значение сохранится в localStorage и будет использоваться клиентским виджетом.</p>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveIntegrations()">💾 Сохранить настройки</button>
+    </div>
+    <p id="integrationStatus" style="font-size:12px; color:var(--good); margin-top:8px;"></p>
+  </div>
+
+  <!-- БЕЗОПАСНОСТЬ -->
+  <div class="section">
+    <div class="section-title"><span>🔐</span> Безопасность</div>
+    <p style="font-size:13px; color:var(--brown); margin:0 0 14px; opacity:0.85;">Пароль хранится только в этом браузере (localStorage). Установите свой — поменяйте его сразу после первого входа.</p>
+    <div class="pass-row">
+      <input type="password" class="field" id="newPass" placeholder="Новый пароль">
+      <input type="password" class="field" id="newPassConfirm" placeholder="Повторите пароль">
+      <button class="btn btn-gold" onclick="changePassword()">Сменить</button>
+    </div>
+    <p class="pass-hint" id="passMsg"></p>
+  </div>
+</div>
+
+<script>
+/* ===== ДЕФОЛТНЫЕ ПРОДУКТЫ ===== */
+const DEFAULT_PRODUCTS = [
+  {id:'wheat',     name:'Пшеничный на закваске',        weight:740, price:400, desc:'Классика: мука, вода, закваска, соль. Лёгкая кислинка, нежный мякиш.'},
+  {id:'rye',       name:'Ржано-пшеничный на закваске',  weight:800, price:450, desc:'Тёмный, плотный мякиш, насыщенный вкус. Хранится дольше обычного.'},
+  {id:'wholegrain',name:'Цельнозерновой на закваске',   weight:700, price:480, desc:'Больше клетчатки и ореховый привкус — для тех, кто следит за питанием.'},
+  {id:'seeds',     name:'С семечками и орехами',         weight:750, price:520, desc:'Подсолнечник, тыква, грецкий орех — хрустящие включения в каждом ломтике.'},
+];
+
+const DEFAULT_PASS = 'bread2024';
+
+/* ===== АВТОРИЗАЦИЯ ===== */
+function getPass(){ return localStorage.getItem('admin-pass') || DEFAULT_PASS; }
+function isLoggedIn(){ return sessionStorage.getItem('admin-auth') === '1'; }
+
+function checkAuth(){
+  if(isLoggedIn()){
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    initPanel();
+  } else {
+    document.getElementById('loginScreen').style.display = 'block';
+    document.getElementById('adminPanel').style.display = 'none';
+  }
+}
+
+function doLogin(){
+  const val = document.getElementById('passInput').value;
+  if(val === getPass()){
+    sessionStorage.setItem('admin-auth','1');
+    document.getElementById('loginError').style.display = 'none';
+    checkAuth();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('passInput').value = '';
+  }
+}
+
+function logout(){
+  sessionStorage.removeItem('admin-auth');
+  checkAuth();
+}
+
+document.getElementById('passInput')?.addEventListener('keydown', e => {
+  if(e.key === 'Enter') doLogin();
+});
+
+function changePassword(){
+  const p1 = document.getElementById('newPass').value;
+  const p2 = document.getElementById('newPassConfirm').value;
+  const msg = document.getElementById('passMsg');
+  if(!p1){ msg.textContent = 'Введите новый пароль'; msg.style.color='var(--bad)'; return; }
+  if(p1 !== p2){ msg.textContent = 'Пароли не совпадают'; msg.style.color='var(--bad)'; return; }
+  if(p1.length < 6){ msg.textContent = 'Минимум 6 символов'; msg.style.color='var(--bad)'; return; }
+  localStorage.setItem('admin-pass', p1);
+  msg.textContent = '✅ Пароль обновлён';
+  msg.style.color = 'var(--good)';
+  document.getElementById('newPass').value = '';
+  document.getElementById('newPassConfirm').value = '';
+}
+
+/* ===== ИНИЦИАЛИЗАЦИЯ ПАНЕЛИ ===== */
+const BOT_API_URL = "__BOT_API_URL__";
+const botUrl = BOT_API_URL.indexOf("__BOT_API_URL__") === -1 ? BOT_API_URL : (localStorage.getItem('admin-bot-url') || '');
+
+function initPanel(){
+  checkBotStatus();
+  renderProducts();
+  loadIntegrations();
+  // Ссылка на витрину
+  const showcaseUrl = location.href.replace('sourdough-admin.html','sourdough-showcase.html');
+  document.getElementById('linkShop').href = showcaseUrl;
+  document.getElementById('linkShopUrl').textContent = showcaseUrl;
+}
+
+/* ===== НАСТРОЙКИ ИНТЕГРАЦИЙ ===== */
+function loadIntegrations(){
+  try{ document.getElementById('adminSheetsUrl').value = localStorage.getItem('sheets-url') ? JSON.parse(localStorage.getItem('sheets-url')) : ''; }catch(e){}
+  try{ document.getElementById('adminBotUrl').value = localStorage.getItem('bot-api-url') ? JSON.parse(localStorage.getItem('bot-api-url')) : ''; }catch(e){}
+  try{
+    const m = localStorage.getItem('claude-model') ? JSON.parse(localStorage.getItem('claude-model')) : '';
+    if(m) document.getElementById('adminClaudeModel').value = m;
+  }catch(e){}
+}
+
+function saveIntegrations(){
+  const sheetsUrl = document.getElementById('adminSheetsUrl').value.trim();
+  const botUrl_ = document.getElementById('adminBotUrl').value.trim().replace(/\/$/, '');
+  const model = document.getElementById('adminClaudeModel').value;
+  localStorage.setItem('sheets-url', JSON.stringify(sheetsUrl));
+  localStorage.setItem('bot-api-url', JSON.stringify(botUrl_));
+  localStorage.setItem('claude-model', JSON.stringify(model));
+  document.getElementById('integrationStatus').textContent = '✅ Настройки сохранены — клиентский виджет подхватит их автоматически';
+  setTimeout(() => { document.getElementById('integrationStatus').textContent = ''; }, 4000);
+}
+
+/* ===== СТАТУС БОТА ===== */
+async function checkBotStatus(){
+  const bar = document.getElementById('statusBar');
+  if(!botUrl){
+    bar.className = 'status-bar status-warn';
+    bar.textContent = '⚠️ BOT_API_URL не задан — связь с ботом недоступна (деплой через Render)';
+    return;
+  }
+  try{
+    const r = await fetch(`${botUrl}/api/health`);
+    const d = await r.json();
+    if(d.status === 'ok'){
+      bar.className = 'status-bar status-ok';
+      bar.textContent = `✅ Бот работает · ${botUrl}`;
+    } else {
+      bar.className = 'status-bar status-err';
+      bar.textContent = '❌ Бот ответил, но статус неизвестен';
+    }
+  }catch(e){
+    bar.className = 'status-bar status-err';
+    bar.textContent = `❌ Бот недоступен · ${botUrl}`;
+  }
+}
+
+/* ===== КАТАЛОГ ===== */
+function getProducts(){
+  try{ const s = localStorage.getItem('admin-products'); return s ? JSON.parse(s) : DEFAULT_PRODUCTS; }
+  catch(e){ return DEFAULT_PRODUCTS; }
+}
+function getStoplist(){
+  try{ const s = localStorage.getItem('admin-stoplist'); return s ? JSON.parse(s) : []; }
+  catch(e){ return []; }
+}
+
+let stoplist = getStoplist();
+
+function renderProducts(){
+  const products = getProducts();
+  stoplist = getStoplist();
+  const container = document.getElementById('productRows');
+  container.innerHTML = '';
+  products.forEach((p, i) => {
+    const inStock = !stoplist.includes(p.id);
+    const row = document.createElement('div');
+    row.className = 'product-row';
+    row.dataset.id = p.id;
+    row.innerHTML = `
+      <div class="prod-name-block">
+        <input class="field" style="margin-bottom:6px; font-size:14px; font-weight:600"
+          value="${p.name}" data-field="name" data-idx="${i}" placeholder="Название">
+        <textarea class="prod-desc-edit field" rows="2"
+          data-field="desc" data-idx="${i}" placeholder="Описание">${p.desc}</textarea>
+      </div>
+      <div>
+        <input class="field" type="number" min="100" max="2000" step="10"
+          value="${p.weight}" data-field="weight" data-idx="${i}">
+      </div>
+      <div>
+        <input class="field" type="number" min="50" max="5000" step="10"
+          value="${p.price}" data-field="price" data-idx="${i}">
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+        <button class="stop-toggle ${inStock ? 'active' : 'inactive'}"
+          data-id="${p.id}" onclick="toggleStock('${p.id}', this)"></button>
+        <span class="stop-label" data-id-label="${p.id}">${inStock ? '✅ есть' : '🚫 нет'}</span>
+      </div>`;
+    container.appendChild(row);
+  });
+
+  // Автовысота textarea
+  container.querySelectorAll('textarea').forEach(t => {
+    t.style.height = 'auto';
+    t.style.height = t.scrollHeight + 'px';
+    t.addEventListener('input', () => { t.style.height='auto'; t.style.height = t.scrollHeight+'px'; });
+  });
+}
+
+function saveProducts(){
+  const products = getProducts();
+  document.querySelectorAll('[data-field]').forEach(input => {
+    const field = input.dataset.field;
+    const idx = parseInt(input.dataset.idx);
+    const val = input.value.trim();
+    if(field === 'price' || field === 'weight') products[idx][field] = parseInt(val) || products[idx][field];
+    else products[idx][field] = val;
+  });
+  localStorage.setItem('admin-products', JSON.stringify(products));
+  localStorage.setItem('admin-stoplist', JSON.stringify(stoplist));
+  showToast('✅ Каталог сохранён — витрина обновится автоматически');
+}
+
+function resetProducts(){
+  if(!confirm('Сбросить каталог к исходным значениям?')) return;
+  localStorage.removeItem('admin-products');
+  renderProducts();
+  showToast('Каталог сброшен к исходным значениям');
+}
+
+function toggleStock(id, btn){
+  const inStock = btn.classList.contains('active');
+  if(inStock){
+    if(!stoplist.includes(id)) stoplist.push(id);
+    btn.className = 'stop-toggle inactive';
+    document.querySelector(`[data-id-label="${id}"]`).textContent = '🚫 нет';
+  } else {
+    stoplist = stoplist.filter(x => x !== id);
+    btn.className = 'stop-toggle active';
+    document.querySelector(`[data-id-label="${id}"]`).textContent = '✅ есть';
+  }
+}
+
+/* ===== TOAST ===== */
+function showToast(msg){
+  let t = document.getElementById('toast');
+  if(!t){
+    t = document.createElement('div');
+    t.id = 'toast';
+    Object.assign(t.style, {
+      position:'fixed', bottom:'24px', left:'50%', transform:'translateX(-50%)',
+      background:'#3E2A1E', color:'#F6EEE0',
+      padding:'12px 22px', borderRadius:'12px', fontSize:'14px', fontWeight:'600',
+      boxShadow:'0 8px 24px rgba(0,0,0,0.2)', zIndex:'9999', transition:'opacity 0.3s',
+    });
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity = '0'; }, 2800);
+}
+
+/* ===== СТАРТ ===== */
+checkAuth();
+</script>
+</body>
+</html>
