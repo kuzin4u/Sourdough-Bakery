@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Масса Матере — Хлеб на закваске | Каталог</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --oz-blue:#005BFF;--oz-blue-light:#E5EEFF;--oz-blue-dark:#0040CC;
+  --oz-orange:#F46D00;--oz-orange-light:#FFF0E5;
+  --oz-green:#00A650;--oz-red:#F11010;
+  --oz-bg:#F3F4F6;--oz-card:#FFF;--oz-border:#E0E0E0;
+  --oz-text:#1A1A1A;--oz-text2:#666;--oz-text3:#999;
+  --oz-star:#FFB800;
+  --wb-purple:#CB11AB;--wb-purple-light:#F9EEF7;
+  --radius:8px
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--oz-bg);color:var(--oz-text);font-size:14px;line-height:1.5}
+
+/* Topbar */
+.topbar{background:var(--oz-blue);padding:10px 0}
+.topbar-inner{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:16px}
+.logo{color:#fff;font-size:20px;font-weight:700;letter-spacing:-.5px;text-decoration:none}
+.logo span{opacity:.7;font-size:13px;font-weight:400;margin-left:6px}
+.search{flex:1;display:flex}
+.search input{flex:1;padding:9px 14px;border:none;border-radius:var(--radius) 0 0 var(--radius);font-size:14px;outline:none}
+.search button{background:var(--oz-orange);color:#fff;border:none;padding:9px 18px;border-radius:0 var(--radius) var(--radius) 0;font-size:14px;cursor:pointer;font-weight:500}
+.topbar-icons{display:flex;gap:20px;color:#fff;font-size:12px;align-items:center}
+.topbar-icon{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;opacity:.9;text-decoration:none;color:#fff}
+.topbar-icon .ico{font-size:18px}
+
+/* Breadcrumb */
+.bread{max-width:1200px;margin:0 auto;padding:10px 20px;font-size:12px;color:var(--oz-text2);display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.bread a{color:var(--oz-text2);text-decoration:none}.bread a:hover{color:var(--oz-blue)}
+.bread .sep{color:var(--oz-border)}
+
+/* Page */
+.page{max-width:1200px;margin:0 auto;padding:0 20px 40px}
+
+/* Category header */
+.cat-header{display:flex;align-items:center;justify-content:space-between;margin:16px 0;flex-wrap:wrap;gap:12px}
+.cat-title{font-size:22px;font-weight:700}
+.cat-count{font-size:13px;color:var(--oz-text2)}
+.cat-sort{display:flex;gap:6px}
+.sort-btn{padding:6px 14px;border:1px solid var(--oz-border);border-radius:20px;background:#fff;font-size:12px;cursor:pointer;font-family:inherit;color:var(--oz-text2)}
+.sort-btn.active{background:var(--oz-blue);color:#fff;border-color:var(--oz-blue)}
+
+/* Product grid */
+.product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:900px){.product-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.product-grid{grid-template-columns:1fr}}
+
+/* Product card */
+.pcard{background:var(--oz-card);border-radius:var(--radius);border:1px solid var(--oz-border);overflow:hidden;transition:box-shadow .2s,transform .15s;position:relative;display:flex;flex-direction:column}
+.pcard:hover{box-shadow:0 8px 24px rgba(0,0,0,.1);transform:translateY(-2px)}
+.pcard-img{aspect-ratio:1;overflow:hidden;position:relative;background:#f8f8f8}
+.pcard-img img{width:100%;height:100%;object-fit:cover;display:block}
+.pcard-img .badge-disc{position:absolute;top:8px;left:8px;background:var(--oz-red);color:#fff;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px}
+.pcard-img .badge-wb{position:absolute;bottom:0;left:0;right:0;background:var(--wb-purple);color:#fff;font-size:10px;padding:4px 8px;text-align:center}
+.pcard-body{padding:12px;flex:1;display:flex;flex-direction:column}
+.pcard-price{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.pcard-price-now{font-size:20px;font-weight:700}
+.pcard-price-old{font-size:13px;color:var(--oz-text3);text-decoration:line-through}
+.pcard-cashback{font-size:11px;color:var(--oz-blue);margin-bottom:6px}
+.pcard-title{font-size:13px;color:var(--oz-text);line-height:1.4;margin-bottom:8px;flex:1}
+.pcard-title a{color:inherit;text-decoration:none}
+.pcard-title a:hover{color:var(--oz-blue)}
+.pcard-rating{display:flex;align-items:center;gap:4px;font-size:12px;margin-bottom:10px}
+.pcard-stars{color:var(--oz-star)}
+.pcard-reviews{color:var(--oz-text3)}
+.pcard-footer{display:flex;gap:6px}
+.btn-cart{flex:1;padding:8px;background:var(--oz-blue);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
+.btn-cart:hover{background:var(--oz-blue-dark)}
+.btn-fav{width:36px;height:36px;border:1px solid var(--oz-border);border-radius:var(--radius);background:#fff;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.btn-fav:hover{border-color:var(--oz-red);color:var(--oz-red)}
+
+/* Promo banner */
+.promo-banner{background:linear-gradient(135deg,var(--oz-blue-light),#fff);border:1px dashed var(--oz-blue);border-radius:var(--radius);padding:16px 20px;margin:20px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.promo-text{font-size:14px;color:var(--oz-text)}
+.promo-code{font-size:18px;font-weight:700;color:var(--oz-blue);letter-spacing:2px}
+.promo-sub{font-size:12px;color:var(--oz-text2);margin-top:2px}
+
+/* Delivery info */
+.delivery-bar{background:var(--oz-card);border:1px solid var(--oz-border);border-radius:var(--radius);padding:14px 20px;margin:16px 0;display:flex;gap:24px;flex-wrap:wrap;font-size:13px;color:var(--oz-text2)}
+.delivery-item{display:flex;align-items:center;gap:6px}
+.delivery-item .ico{font-size:16px}
+
+/* Footer */
+.ozon-footer{text-align:center;padding:20px;font-size:12px;color:var(--oz-text3);margin-top:20px}
+
+/* Shop banner */
+.shop-banner{background:var(--oz-card);border:1px solid var(--oz-border);border-radius:var(--radius);padding:16px 20px;margin:16px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.shop-banner-title{font-size:15px;font-weight:600}
+.shop-banner-sub{font-size:12px;color:var(--oz-text2);margin-top:2px}
+.shop-banner-btn{padding:10px 24px;background:var(--oz-green);color:#fff;border-radius:var(--radius);font-size:13px;font-weight:600;text-decoration:none;transition:background .15s}
+.shop-banner-btn:hover{background:#008c43}
+
+/* Floating chat button */
+.chat-fab{position:fixed;bottom:24px;right:24px;display:flex;align-items:center;gap:8px;padding:12px 20px;background:var(--oz-blue);color:#fff;border-radius:28px;text-decoration:none;font-size:14px;font-weight:600;box-shadow:0 4px 16px rgba(0,91,255,.35);transition:all .2s;z-index:100}
+.chat-fab:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,91,255,.45)}
+.chat-fab-icon{font-size:20px}
+@media(max-width:500px){.chat-fab-label{display:none}.chat-fab{padding:14px;border-radius:50%}}
+</style>
+</head>
+<body>
+
+<!-- Topbar (Ozon-style) -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <a class="logo" href="/" id="brandLogo">Масса Матере <span>Пекарня</span></a>
+    <div class="search">
+      <input type="text" placeholder="Искать хлеб на закваске..." id="searchInput" oninput="filterProducts()"/>
+      <button>🔍</button>
+    </div>
+    <div class="topbar-icons">
+      <a class="topbar-icon" href="https://t.me/Sourdough_Bakery_Bot" target="_blank"><span class="ico">📱</span>Telegram</a>
+      <a class="topbar-icon" href="https://t.me/Sourdough_Bakery_Bot?start=order" target="_blank"><span class="ico">🛒</span>Корзина</a>
+    </div>
+  </div>
+</div>
+
+<!-- Breadcrumb -->
+<div class="bread">
+  <a href="/">Главная</a><span class="sep">›</span>
+  <a href="/">Пекарня</a><span class="sep">›</span>
+  <span>Хлеб на закваске</span>
+</div>
+
+<div class="page">
+
+  <!-- Delivery bar -->
+  <div class="delivery-bar">
+    <div class="delivery-item"><span class="ico">🕐</span> Выпечка: вт · чт · сб</div>
+    <div class="delivery-item"><span class="ico">📦</span> Доставка в день выпечки</div>
+    <div class="delivery-item"><span class="ico">🎁</span> Промокод ЗАВТРА — скидка −15%</div>
+    <div class="delivery-item"><span class="ico">💬</span> <a href="https://t.me/Sourdough_Bakery_Bot" target="_blank" style="color:var(--oz-blue);text-decoration:none">Заказать в Telegram</a></div>
+  </div>
+
+  <!-- Category header -->
+  <div class="cat-header">
+    <div>
+      <div class="cat-title">Хлеб на закваске</div>
+      <div class="cat-count">4 товара · SeMaVi / Масса Матере</div>
+    </div>
+    <div class="cat-sort">
+      <button class="sort-btn active" onclick="sortProducts('popular',this)">Популярное</button>
+      <button class="sort-btn" onclick="sortProducts('cheap',this)">Дешевле</button>
+      <button class="sort-btn" onclick="sortProducts('expensive',this)">Дороже</button>
+      <button class="sort-btn" onclick="sortProducts('rating',this)">По рейтингу</button>
+    </div>
+  </div>
+
+  <!-- Product grid -->
+  <div class="product-grid" id="productGrid"></div>
+
+  <!-- Promo banner -->
+  <div class="promo-banner">
+    <div>
+      <div class="promo-text">Промокод на первый заказ</div>
+      <div class="promo-sub">Введите в Telegram-боте при оформлении</div>
+    </div>
+    <div>
+      <div class="promo-code">REELS</div>
+      <div class="promo-sub" style="text-align:right">−10% на всё</div>
+    </div>
+  </div>
+
+  <!-- Chat with baker → shop page -->
+  <div class="shop-banner">
+    <div class="shop-banner-left">
+      <div class="shop-banner-title">💬 Чат с пекарем</div>
+      <div class="shop-banner-sub">AI-консультант · Ответит на вопросы · Поможет выбрать</div>
+    </div>
+    <a class="shop-banner-btn" href="sourdough-shop.html#chat" id="shopLink">Открыть чат →</a>
+  </div>
+
+</div>
+
+<!-- Floating Telegram button -->
+<a class="chat-fab" href="https://t.me/Sourdough_Bakery_Bot" target="_blank" title="Telegram">
+  <span class="chat-fab-icon">📱</span>
+  <span class="chat-fab-label">Telegram</span>
+</a>
+
+<div class="ozon-footer" id="brandFooter">
+  © Масса Матере · SeMaVi · Хлеб на закваске ручной работы
+</div>
+
+<script>
+let PRODUCTS = [];
+let currentSort = 'popular';
+let config = null;
+
+function stars(n) {
+  return '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n));
+}
+
+function renderCard(p) {
+  const discount = Math.round((1 - p.price / p.oldPrice) * 100);
+  const cashback = Math.round(p.price * 0.1);
+  return `
+    <div class="pcard" data-id="${p.id}">
+      <a href="${p.card}" class="pcard-img">
+        <img src="${p.photo}" alt="${p.name}" loading="lazy"/>
+        <span class="badge-disc">−${discount}%</span>
+        <div class="badge-wb">${p.badge} · ${p.reviews} отзывов · ${p.rating}★</div>
+      </a>
+      <div class="pcard-body">
+        <div class="pcard-price">
+          <span class="pcard-price-now">${p.price} ₽</span>
+          <span class="pcard-price-old">${p.oldPrice} ₽</span>
+        </div>
+        <div class="pcard-cashback">⟵ Вернём ${cashback} ₽ баллами</div>
+        <div class="pcard-title"><a href="${p.card}">${p.name}</a></div>
+        <div class="pcard-rating">
+          <span class="pcard-stars">${stars(p.rating)}</span>
+          <span class="pcard-reviews">${p.reviews} отзывов</span>
+        </div>
+        <div class="pcard-footer">
+          <button class="btn-cart" onclick="addCart(this)">В корзину</button>
+          <button class="btn-fav" onclick="toggleFav(this)">♡</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderGrid(products) {
+  document.getElementById('productGrid').innerHTML = products.map(renderCard).join('');
+}
+
+function sortProducts(key, btn) {
+  currentSort = key;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const sorted = [...PRODUCTS];
+  if (key === 'cheap') sorted.sort((a, b) => a.price - b.price);
+  else if (key === 'expensive') sorted.sort((a, b) => b.price - a.price);
+  else if (key === 'rating') sorted.sort((a, b) => b.rating - a.rating);
+  renderGrid(sorted);
+}
+
+function filterProducts() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = PRODUCTS.filter(p => p.name.toLowerCase().includes(q));
+  renderGrid(filtered);
+}
+
+function addCart(btn) {
+  btn.textContent = '✓ В корзине';
+  btn.style.background = 'var(--oz-green)';
+  setTimeout(() => { btn.textContent = 'В корзину'; btn.style.background = ''; }, 2000);
+}
+
+function toggleFav(btn) {
+  const isFav = btn.textContent === '♥';
+  btn.textContent = isFav ? '♡' : '♥';
+  btn.style.color = isFav ? '' : 'var(--oz-red)';
+  btn.style.borderColor = isFav ? '' : 'var(--oz-red)';
+}
+
+function applyConfig(cfg) {
+  config = cfg;
+  // Brand
+  const logoEl = document.getElementById('brandLogo');
+  if (logoEl) logoEl.innerHTML = cfg.brand.name + ' <span>' + cfg.brand.tagline + '</span>';
+  const footerEl = document.getElementById('brandFooter');
+  if (footerEl) footerEl.textContent = cfg.brand.footer;
+  // Telegram links
+  document.querySelectorAll('a[href*="Sourdough_Bakery_Bot"]').forEach(a => {
+    a.href = a.href.replace('https://t.me/Sourdough_Bakery_Bot', cfg.brand.telegram);
+  });
+  // Shop link
+  const shopBtn = document.getElementById('shopLink');
+  if (shopBtn && cfg.brand.shop) shopBtn.href = cfg.brand.shop;
+  // Delivery
+  const dItems = document.querySelectorAll('.delivery-item');
+  if (dItems[0] && cfg.delivery) dItems[0].querySelector('.ico').nextSibling.textContent = ' ' + cfg.delivery.schedule;
+  // Products — first category (or ?cat= param)
+  const catParam = new URLSearchParams(location.search).get('cat');
+  const category = catParam
+    ? cfg.categories.find(c => c.id === catParam) || cfg.categories[0]
+    : cfg.categories[0];
+  PRODUCTS = category.products.map((p, i) => ({...p, popular: i + 1}));
+  // Category title
+  const catTitle = document.querySelector('.cat-title');
+  if (catTitle) catTitle.textContent = category.name;
+  const catCount = document.querySelector('.cat-count');
+  if (catCount) catCount.textContent = PRODUCTS.length + ' товаров · ' + cfg.brand.name;
+  renderGrid(PRODUCTS);
+}
+
+// Load config
+async function init() {
+  try {
+    const resp = await fetch('config.json');
+    const cfg = await resp.json();
+    applyConfig(cfg);
+  } catch (e) {
+    // Fallback: hardcoded products
+    console.warn('config.json not found, using defaults');
+    PRODUCTS = [
+      {id:'tartin',name:'Тартин — хлеб на закваске, 650 г',price:380,oldPrice:450,photo:'https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/Tartin%3A_1.jpeg',rating:4.9,reviews:23,badge:'🏆 Выбор покупателей',card:'card-tartin.html',weight:650,popular:1},
+      {id:'zavarnoj',name:'Заварной ржано-пшеничный, 500 г',price:425,oldPrice:500,photo:'https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/Zavarnoi_1.jpeg',rating:4.8,reviews:18,badge:'🌾 Насыщенный вкус',card:'card-zavarnoj.html',weight:500,popular:2},
+      {id:'borodinskij',name:'Бородинский с кориандром, 400 г',price:340,oldPrice:400,photo:'https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/Borodinsky_1.jpeg',rating:4.8,reviews:15,badge:'🍞 Классика',card:'card-borodinskij.html',weight:400,popular:3},
+      {id:'syrnyj',name:'Тартин сырный с сыром, 650 г',price:468,oldPrice:550,photo:'https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/Tartin_syrn.jpeg',rating:4.7,reviews:12,badge:'🧀 Новинка',card:'card-syrnyj.html',weight:650,popular:4},
+    ];
+    renderGrid(PRODUCTS);
+  }
+}
+init();
+</script>
+</body>
+</html>
