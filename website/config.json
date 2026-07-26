@@ -1,0 +1,74 @@
+{
+  "brand": {
+    "name": "Масса Матере",
+    "tagline": "Пекарня",
+    "footer": "© Масса Матере · SeMaVi · Хлеб на закваске ручной работы",
+    "telegram": "https://t.me/Sourdough_Bakery_Bot",
+    "shop": "sourdough-shop.html"
+  },
+  "delivery": {
+    "schedule": "Выпечка: вт · чт · сб",
+    "method": "Доставка в день выпечки",
+    "promo": "Промокод ЗАВТРА — скидка −15%"
+  },
+  "promos": [
+    {"code": "REELS", "discount": "−10%", "description": "Промокод на первый заказ"},
+    {"code": "ЗАВТРА", "discount": "−15%", "description": "Накануне выпечки"}
+  ],
+  "categories": [
+    {
+      "id": "bread",
+      "name": "Хлеб на закваске",
+      "products": [
+        {
+          "id": "tartin",
+          "name": "Тартин — хлеб на закваске, ручная работа, 650 г",
+          "price": 380,
+          "oldPrice": 450,
+          "photo": "https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/Tartin%3A_1.jpeg",
+          "rating": 4.9,
+          "reviews": 23,
+          "badge": "🏆 Выбор покупателей",
+          "card": "card-tartin.html",
+          "weight": 650
+        },
+        {
+          "id": "zavarnoj",
+          "name": "Заварной ржано-пшеничный на закваске, 500 г",
+          "price": 425,
+          "oldPrice": 500,
+          "photo": "https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/Zavarnoi_1.jpeg",
+          "rating": 4.8,
+          "reviews": 18,
+          "badge": "🌾 Насыщенный вкус",
+          "card": "card-zavarnoj.html",
+          "weight": 500
+        },
+        {
+          "id": "borodinskij",
+          "name": "Бородинский на закваске с кориандром, 400 г",
+          "price": 340,
+          "oldPrice": 400,
+          "photo": "https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/Borodinsky_1.jpeg",
+          "rating": 4.8,
+          "reviews": 15,
+          "badge": "🍞 Классика",
+          "card": "card-borodinskij.html",
+          "weight": 400
+        },
+        {
+          "id": "syrnyj",
+          "name": "Тартин сырный — хлеб на закваске с сыром, 650 г",
+          "price": 468,
+          "oldPrice": 550,
+          "photo": "https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/Tartin_syrn.jpeg",
+          "rating": 4.7,
+          "reviews": 12,
+          "badge": "🧀 Новинка",
+          "card": "card-syrnyj.html",
+          "weight": 650
+        }
+      ]
+    }
+  ]
+}
