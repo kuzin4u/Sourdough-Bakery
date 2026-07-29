@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: massa-madre-vk-bot
+    runtime: python
+    rootDir: vk-bot          # папка в монорепозитории
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: python vk_bot.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: VK_TOKEN
+        sync: false           # ключ доступа сообщества ВКонтакте
+      - key: VK_GROUP_ID
+        sync: false           # ID сообщества (число)
+      - key: VK_SECRET
+        sync: false           # секрет Callback API
+      - key: VK_CONFIRM_CODE
+        sync: false           # код подтверждения сервера
+      - key: VK_ADMIN_ID
+        sync: false           # ваш VK user_id для уведомлений
+      - key: SHEETS_WEBHOOK_URL
+        sync: false           # тот же URL что у Telegram-бота
+      - key: BAKE_WEEKDAYS
+        value: "2,4,6"
