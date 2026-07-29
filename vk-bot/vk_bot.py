@@ -381,7 +381,8 @@ def vk_callback():
     # Подтверждение сервера при настройке Callback
     if data.get("type") == "confirmation":
         confirm_code = os.getenv("VK_CONFIRM_CODE", "")
-        return confirm_code, 200
+        from flask import Response
+        return Response(confirm_code, status=200, mimetype="text/plain")
 
     # Проверка секрета
     if VK_SECRET and data.get("secret") != VK_SECRET:
