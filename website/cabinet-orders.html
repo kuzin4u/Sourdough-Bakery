@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SeMaVi — Кабинет продавца</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f5f3f0;--card:#fff;--border:#e0ddd8;--text:#1a1a1a;--muted:#7a7a7a;
+  --wb:#a332ff;--wb-light:#f0e4ff;--gold:#d4a843;--gold-light:#fdf5e3;
+  --green:#2aa05c;--green-light:#e6f7ee;--red:#e74c3c;--blue:#3b82f6;
+  --sidebar-bg:#2d1854;--sidebar-text:#e0d6f0;--sidebar-active:#a332ff;
+  --header-bg:#fff;--accent:#a332ff
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+
+/* Layout */
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+
+/* Sidebar */
+.sidebar{background:var(--sidebar-bg);padding:20px 0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-logo{padding:12px 20px 24px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.sidebar-logo img{width:36px;height:36px;border-radius:8px}
+.sidebar-logo span{color:#fff;font-weight:700;font-size:16px;letter-spacing:1px}
+.sidebar-nav{padding:16px 0}
+.nav-section{padding:6px 20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.3);margin-top:16px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--sidebar-text);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;border-left:3px solid transparent;text-decoration:none}
+.nav-item:hover,.nav-item.active{background:rgba(163,50,255,0.12);color:#fff;border-left-color:var(--sidebar-active)}
+.nav-item .icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.nav-item .badge{margin-left:auto;background:var(--wb);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px}
+
+/* Main */
+.main{padding:0}
+.topbar{background:var(--header-bg);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.topbar-title{font-size:18px;font-weight:700}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.topbar-btn{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px}
+.topbar-btn:hover{border-color:var(--wb)}
+
+.content{padding:24px 28px}
+
+/* Metrics */
+.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:28px}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.metric-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.metric-value{font-size:26px;font-weight:800;margin-top:6px}
+.metric-value.wb{color:var(--wb)}
+.metric-value.green{color:var(--green)}
+.metric-value.gold{color:var(--gold)}
+.metric-sub{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* Channels */
+.channels-bar{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+.ch-pill{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--card);display:flex;align-items:center;gap:5px;cursor:pointer;transition:all 0.15s}
+.ch-pill:hover{border-color:var(--wb);background:var(--wb-light)}
+.ch-pill.active{background:var(--wb);color:#fff;border-color:var(--wb)}
+
+/* Product grid */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.section-title{font-size:16px;font-weight:700}
+.section-count{font-size:12px;color:var(--muted);font-weight:500}
+.filter-tabs{display:flex;gap:6px}
+.filter-tab{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--card);cursor:pointer}
+.filter-tab.active{background:var(--wb);color:#fff;border-color:var(--wb)}
+
+/* Horizontal product cards (WB cabinet format) */
+.pcard{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:16px;display:grid;grid-template-columns:240px 1fr;transition:box-shadow 0.2s}
+.pcard:hover{box-shadow:0 4px 20px rgba(0,0,0,0.06)}
+.pcard-gallery{position:relative;overflow:hidden;background:#faf8f5;display:flex;align-items:center;justify-content:center;min-height:240px}
+.pcard-gallery img{width:100%;height:100%;object-fit:cover}
+.pcard-badge-top{position:absolute;top:10px;left:10px;display:flex;gap:4px;flex-wrap:wrap}
+.pcard-badge{padding:3px 8px;border-radius:4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+.badge-hit{background:#c1306c;color:#fff}
+.badge-new{background:var(--wb);color:#fff}
+.badge-limited{background:var(--gold);color:#fff}
+
+.pcard-body{padding:20px;display:flex;flex-direction:column;gap:10px}
+.pcard-top-row{display:flex;align-items:center;justify-content:space-between}
+.pcard-sku{font-size:11px;color:var(--muted);font-weight:500;font-family:monospace}
+.pcard-status{display:flex;align-items:center;gap:4px}
+.stock-dot{width:7px;height:7px;border-radius:50%}
+.stock-dot.ok{background:var(--green)}
+.stock-dot.low{background:var(--gold)}
+.stock-label{font-size:11px;font-weight:600}
+.stock-label.ok{color:var(--green)}
+.stock-label.low{color:var(--gold)}
+
+.pcard-name{font-size:18px;font-weight:700;line-height:1.3}
+.pcard-tagline{font-size:12px;color:var(--muted);line-height:1.4}
+
+.pcard-price-row{display:flex;align-items:baseline;gap:10px}
+.pcard-price{font-size:22px;font-weight:800;color:var(--wb)}
+.pcard-weight{font-size:12px;color:var(--muted);font-weight:600;padding:3px 8px;background:var(--bg);border-radius:4px}
+
+.utps{display:flex;flex-wrap:wrap;gap:5px}
+.utp{padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;background:var(--bg)}
+.utp.green{background:var(--green-light);color:var(--green)}
+.utp.gold{background:var(--gold-light);color:#a07b20}
+.utp.hit{background:#fde8ef;color:#c1306c}
+
+.chars-mini{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;margin-top:2px}
+.char-row{display:flex;gap:6px;font-size:11px}
+.char-key{color:var(--muted);flex-shrink:0;min-width:70px}
+.char-val{font-weight:500}
+
+.pcard-actions{display:flex;gap:8px;margin-top:auto}
+.btn-wb{padding:8px 18px;border-radius:8px;font-size:12px;font-weight:700;border:none;cursor:pointer;transition:all 0.15s}
+.btn-wb.primary{background:var(--wb);color:#fff}
+.btn-wb.primary:hover{background:#8a20dd}
+.btn-wb.outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-wb.outline:hover{border-color:var(--wb);color:var(--wb)}
+
+/* Footer */
+.footer{padding:24px 28px;border-top:1px solid var(--border);background:var(--card);margin-top:20px}
+.footer-inner{display:flex;justify-content:space-between;align-items:center}
+.footer-brand{display:flex;align-items:center;gap:8px}
+.footer-brand img{width:24px;height:24px;border-radius:6px}
+.footer-brand span{font-weight:700;font-size:13px;letter-spacing:1px}
+.footer-text{font-size:11px;color:var(--muted)}
+
+/* Orders Pipeline */
+.pipeline{display:flex;gap:4px;margin-bottom:24px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 20px;align-items:center}
+.pipe-stage{flex:1;text-align:center;padding:14px 8px;border-radius:10px;cursor:pointer;transition:all 0.2s;position:relative}
+.pipe-stage:hover{background:rgba(163,50,255,0.06)}
+.pipe-stage.active{background:var(--wb-light);border:1.5px solid var(--wb)}
+.pipe-count{font-size:26px;font-weight:800;line-height:1}
+.pipe-count.new{color:var(--blue)}
+.pipe-count.prep{color:var(--gold)}
+.pipe-count.ship{color:var(--wb)}
+.pipe-count.done{color:var(--green)}
+.pipe-count.cancel{color:var(--red)}
+.pipe-label{font-size:11px;color:var(--muted);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.pipe-arrow{color:var(--border);font-size:20px;flex-shrink:0;margin:0 2px}
+
+/* Orders Table */
+.orders-table-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.orders-toolbar{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.search-box{display:flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:8px;padding:6px 12px;background:var(--bg);flex:1;max-width:280px}
+.search-box input{border:none;background:transparent;outline:none;font-size:12px;font-family:inherit;color:var(--text);width:100%}
+.date-range{display:flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:8px;padding:6px 12px;background:var(--bg);font-size:12px;color:var(--muted);cursor:pointer}
+.date-range:hover{border-color:var(--wb)}
+
+.otable{width:100%;border-collapse:collapse;font-size:12px}
+.otable thead th{text-align:left;padding:10px 16px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);background:var(--bg);border-bottom:1px solid var(--border);white-space:nowrap}
+.otable tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s}
+.otable tbody tr:hover{background:rgba(163,50,255,0.03)}
+.otable tbody tr:last-child{border-bottom:none}
+.otable td{padding:12px 16px;vertical-align:middle}
+
+.order-num{font-weight:700;color:var(--wb);font-family:monospace;font-size:13px}
+.order-date{color:var(--muted);font-size:11px;margin-top:2px}
+.order-client{font-weight:600;font-size:13px}
+.order-phone{color:var(--muted);font-size:11px;margin-top:2px}
+.order-items{font-size:12px;line-height:1.5}
+.order-item-line{display:flex;gap:4px;align-items:center}
+.order-item-emoji{font-size:14px}
+
+.status-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;white-space:nowrap}
+.st-new{background:#e0f2fe;color:#0369a1}
+.st-prep{background:var(--gold-light);color:#a07b20}
+.st-ship{background:var(--wb-light);color:#7c22c9}
+.st-done{background:var(--green-light);color:var(--green)}
+.st-cancel{background:#fee2e2;color:#dc2626}
+
+.channel-badge{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600;background:var(--bg)}
+.ch-tg{color:#229ED9}.ch-web{color:#1a1a1a}.ch-ig{color:#E1306C}.ch-vk{color:#0077FF}
+
+.promo-tag{font-size:10px;color:var(--green);font-weight:600}
+.order-sum{font-weight:700;font-size:14px}
+.order-sum-sub{font-size:10px;color:var(--muted);margin-top:2px}
+
+.action-dots{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--muted);transition:all 0.15s}
+.action-dots:hover{border-color:var(--wb);color:var(--wb)}
+
+.orders-footer{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}
+.page-btn{padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--card);font-size:11px;font-weight:600;cursor:pointer;margin:0 2px}
+.page-btn:hover{border-color:var(--wb)}
+.page-btn.active{background:var(--wb);color:#fff;border-color:var(--wb)}
+
+/* Quick Stats Row for Orders */
+.order-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.ostat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+.ostat-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.ostat-value{font-size:22px;font-weight:800;margin-top:4px}
+.ostat-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.ostat-trend{font-size:11px;font-weight:600;margin-top:4px}
+.ostat-trend.up{color:var(--green)}
+.ostat-trend.down{color:var(--red)}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .pcard{grid-template-columns:1fr}
+  .pipeline{flex-wrap:wrap}
+  .pipe-arrow{display:none}
+  .pipe-stage{min-width:calc(50% - 8px)}
+  .order-stats{grid-template-columns:repeat(2,1fr)}
+  .otable{display:block;overflow-x:auto}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/LOGOTIPE-1.png" alt="SeMaVi"/>
+    <span>SeMaVi</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Каталог</div>
+    <a class="nav-item" href="cabinet-products.html"><span class="icon">🍞</span> Товары <span class="badge">4</span></a>
+    <a class="nav-item" href="cabinet-stock.html"><span class="icon">📦</span> Склад / FBS</a>
+    <a class="nav-item" href="cabinet-prices.html"><span class="icon">💰</span> Цены и скидки</a>
+    <div class="nav-section">Продажи</div>
+    <a class="nav-item active" href="cabinet-orders.html"><span class="icon">📋</span> Заказы</a>
+    <a class="nav-item" href="cabinet-analytics.html"><span class="icon">📊</span> Аналитика</a>
+    <a class="nav-item" href="cabinet-funnel.html"><span class="icon">📈</span> Воронка</a>
+    <div class="nav-section">Маркетинг</div>
+    <a class="nav-item" href="cabinet-promo.html"><span class="icon">🚀</span> Продвижение</a>
+    <a class="nav-item" href="cabinet-reviews.html"><span class="icon">⭐</span> Отзывы</a>
+    <div class="nav-section">Финансы</div>
+    <a class="nav-item" href="#"><span class="icon">💳</span> Расчёты</a>
+    <a class="nav-item" href="#"><span class="icon">📄</span> Документы</a>
+    <div class="nav-section">Настройки</div>
+    <a class="nav-item" href="schedule.html"><span class="icon">⚙️</span> Расписание</a>
+    <a class="nav-item" href="/"><span class="icon">🌐</span> Каталог</a>
+  </nav>
+</aside>
+
+<!-- Main content -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title">Масса Мадре — Хлеб на закваске</div>
+    <div class="topbar-right">
+      <button class="topbar-btn">🔔 Уведомления</button>
+      <button class="topbar-btn">⚙️ Настройки</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Metrics bar -->
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Товаров</div>
+        <div class="metric-value wb">4</div>
+        <div class="metric-sub">SKU активных</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Каналов</div>
+        <div class="metric-value gold">7</div>
+        <div class="metric-sub">TG · IG · VK · OZ · WB · Max · Сайт</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Ср. чек</div>
+        <div class="metric-value green">475 ₽</div>
+        <div class="metric-sub">за последние 30 дней</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Конверсия</div>
+        <div class="metric-value">12.4%</div>
+        <div class="metric-sub">показы → заказ</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Оценка</div>
+        <div class="metric-value gold">4.9 ★</div>
+        <div class="metric-sub">на основе 87 отзывов</div>
+      </div>
+    </div>
+
+    <!-- Channels bar -->
+    <div class="channels-bar">
+      <div class="ch-pill active" onclick="filterBySidebar('all',this)">📋 Все каналы</div>
+      <div class="ch-pill" onclick="filterBySidebar('tg',this)">📱 Telegram</div>
+      <div class="ch-pill" onclick="filterBySidebar('ig',this)">📸 Instagram</div>
+      <div class="ch-pill" onclick="filterBySidebar('vk',this)">💙 VK</div>
+      <div class="ch-pill" onclick="filterBySidebar('ozon',this)">🔵 Ozon</div>
+      <div class="ch-pill" onclick="filterBySidebar('wb',this)">🟣 WB</div>
+      <div class="ch-pill" onclick="filterBySidebar('max',this)">💬 Max</div>
+      <div class="ch-pill" onclick="filterBySidebar('shop',this)">🌐 Сайт</div>
+    </div>
+
+    <!-- Orders Section Header -->
+    <div class="section-header">
+      <div>
+        <div class="section-title">Управление заказами</div>
+        <div class="section-count">12 заказов · Последние 7 дней</div>
+      </div>
+      <div class="filter-tabs">
+        <div class="filter-tab active">Все</div>
+        <div class="filter-tab">Сегодня</div>
+        <div class="filter-tab">Неделя</div>
+      </div>
+    </div>
+
+    <!-- Orders Pipeline -->
+    <div class="pipeline">
+      <div class="pipe-stage active" onclick="filterOrders('all')">
+        <div class="pipe-count new">12</div>
+        <div class="pipe-label">Все</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-stage" onclick="filterOrders('new')">
+        <div class="pipe-count new">3</div>
+        <div class="pipe-label">Новый</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-stage" onclick="filterOrders('prep')">
+        <div class="pipe-count prep">4</div>
+        <div class="pipe-label">Готовится</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-stage" onclick="filterOrders('ship')">
+        <div class="pipe-count ship">2</div>
+        <div class="pipe-label">Доставляется</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-stage" onclick="filterOrders('done')">
+        <div class="pipe-count done">2</div>
+        <div class="pipe-label">Доставлен</div>
+      </div>
+      <div class="pipe-arrow">·</div>
+      <div class="pipe-stage" onclick="filterOrders('cancel')">
+        <div class="pipe-count cancel">1</div>
+        <div class="pipe-label">Отменён</div>
+      </div>
+    </div>
+
+    <!-- Order Stats -->
+    <div class="order-stats">
+      <div class="ostat">
+        <div class="ostat-label">Заказов сегодня</div>
+        <div class="ostat-value" style="color:var(--blue)">3</div>
+        <div class="ostat-sub">на сумму 1 400 ₽</div>
+        <div class="ostat-trend up">↑ +50% к вчера</div>
+      </div>
+      <div class="ostat">
+        <div class="ostat-label">Выручка за неделю</div>
+        <div class="ostat-value" style="color:var(--green)">5 850 ₽</div>
+        <div class="ostat-sub">12 заказов</div>
+        <div class="ostat-trend up">↑ +23%</div>
+      </div>
+      <div class="ostat">
+        <div class="ostat-label">Средний чек</div>
+        <div class="ostat-value" style="color:var(--gold)">488 ₽</div>
+        <div class="ostat-sub">1.4 SKU / заказ</div>
+        <div class="ostat-trend up">↑ +8%</div>
+      </div>
+      <div class="ostat">
+        <div class="ostat-label">Время обработки</div>
+        <div class="ostat-value">1.2 ч</div>
+        <div class="ostat-sub">от заказа до «Готовится»</div>
+        <div class="ostat-trend down">↓ −15 мин</div>
+      </div>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="orders-table-wrap">
+      <div class="orders-toolbar">
+        <div class="search-box">
+          <span style="color:var(--muted)">🔍</span>
+          <input type="text" placeholder="Поиск по номеру, клиенту, товару..." id="orderSearch" oninput="searchOrders()">
+        </div>
+        <div class="date-range">📅 21 – 25 июля 2026</div>
+        <div class="filter-tabs" style="margin-left:auto">
+          <div class="filter-tab active" onclick="filterChannel('all',this)">Все каналы</div>
+          <div class="filter-tab" onclick="filterChannel('tg',this)">📱 TG</div>
+          <div class="filter-tab" onclick="filterChannel('shop',this)">🛒 Магазин</div>
+          <div class="filter-tab" onclick="filterChannel('web',this)">🌐 Сайт</div>
+          <div class="filter-tab" onclick="filterChannel('ig',this)">📸 IG</div>
+          <div class="filter-tab" onclick="filterChannel('vk',this)">💙 VK</div>
+        </div>
+      </div>
+
+      <table class="otable">
+        <thead>
+          <tr>
+            <th>Заказ</th>
+            <th>Клиент</th>
+            <th>Состав</th>
+            <th>Канал</th>
+            <th>Промо</th>
+            <th>Сумма</th>
+            <th>Статус</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="ordersBody">
+          <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">⏳ Загружаю заказы из Google Sheets…</td></tr>
+        </tbody>
+      </table>
+
+      <div class="orders-footer">
+        <div>Показаны 1–12 из 12 заказов</div>
+        <div>
+          <button class="page-btn">←</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">→</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+  const API_URL = 'https://script.google.com/macros/s/AKfycbygMB0RJZg8tHOm1ueGdNob4ihBssXRwAK4MGwBW3Z4IT5X4qA0Guo1tqcRkWnqoBjj/exec';
+  const STATUS_MAP = {
+    'Принят':{key:'new',label:'● Новый',cls:'st-new'},'Новый':{key:'new',label:'● Новый',cls:'st-new'},
+    'Готовится':{key:'prep',label:'◐ Готовится',cls:'st-prep'},
+    'Доставляется':{key:'ship',label:'◉ Доставляется',cls:'st-ship'},
+    'Доставлен':{key:'done',label:'✓ Доставлен',cls:'st-done'},
+    'Отменён':{key:'cancel',label:'✕ Отменён',cls:'st-cancel'},
+  };
+  const CHANNEL_MAP = {
+    'Telegram':{key:'tg',label:'📱 Telegram',cls:'ch-tg'},'telegram':{key:'tg',label:'📱 Telegram',cls:'ch-tg'},
+    'Telegram-бот (Python)':{key:'tg',label:'📱 Telegram',cls:'ch-tg'},
+    'Магазин (сайт)':{key:'shop',label:'🛒 Магазин',cls:'ch-web'},
+    'Браузер (сайт)':{key:'shop',label:'🛒 Магазин',cls:'ch-web'},
+    'Сайт':{key:'web',label:'🌐 Сайт',cls:'ch-web'},'website':{key:'web',label:'🌐 Сайт',cls:'ch-web'},
+    'Instagram':{key:'ig',label:'📸 Instagram',cls:'ch-ig'},'instagram':{key:'ig',label:'📸 Instagram',cls:'ch-ig'},
+    'VKontakte':{key:'vk',label:'💙 VK',cls:'ch-vk'},'vk':{key:'vk',label:'💙 VK',cls:'ch-vk'},
+    'Лид LuckLyrics RU':{key:'lead',label:'🎯 Лид RU',cls:'ch-tg'},
+    'Лид LuckLyrics EN':{key:'lead',label:'🎯 Лид EN',cls:'ch-tg'},
+    'Лид LuckLyrics PT':{key:'lead',label:'🎯 Лид PT',cls:'ch-tg'},
+  };
+  const NEXT_STATUS = {new:'Готовится',prep:'Доставляется',ship:'Доставлен'};
+  let allOrders = [];
+
+  function fmtDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d)) return String(iso).slice(0,16);
+    return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+' · '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  }
+  function fmtSum(n) { return Number(n).toLocaleString('ru-RU')+' ₽'; }
+
+  function renderRow(o) {
+    const st = STATUS_MAP[o.status] || STATUS_MAP['Принят'];
+    const ch = CHANNEL_MAP[o.channel] || {key:'other',label:o.channel||'?',cls:'ch-tg'};
+    const promo = o.discount ? '<span class="promo-tag">'+o.discount+'</span>' : '—';
+    const items = (o.items||'').split(';').filter(Boolean).map(i=>'<div class="order-item-line"><span class="order-item-emoji">🍞</span> '+i.trim()+'</div>').join('');
+    return '<tr data-status="'+st.key+'" data-channel="'+ch.key+'" data-id="'+o.id+'">'+
+      '<td><div class="order-num">#'+o.id+'</div><div class="order-date">'+fmtDate(o.date)+'</div></td>'+
+      '<td><div class="order-client">'+(o.name||'—')+'</div><div class="order-phone">'+(o.phone||'')+'</div></td>'+
+      '<td><div class="order-items">'+(items||'—')+'</div></td>'+
+      '<td><span class="channel-badge '+ch.cls+'">'+ch.label+'</span></td>'+
+      '<td>'+promo+'</td>'+
+      '<td><div class="order-sum">'+fmtSum(o.total)+'</div></td>'+
+      '<td><span class="status-badge '+st.cls+'">'+st.label+'</span></td>'+
+      '<td><div class="action-dots" onclick="showActions(this)">⋯</div></td></tr>';
+  }
+
+  function renderOrders(orders) {
+    const tbody = document.getElementById('ordersBody');
+    if (!orders.length) { tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">Нет заказов</td></tr>'; return; }
+    tbody.innerHTML = orders.map(renderRow).join('');
+    updatePipeline(orders); updateStats(orders);
+    document.querySelector('.orders-footer div').textContent='Показаны 1–'+orders.length+' из '+orders.length+' заказов';
+  }
+
+  function updatePipeline(orders) {
+    const c = {all:orders.length,new:0,prep:0,ship:0,done:0,cancel:0};
+    orders.forEach(o=>{ const s=STATUS_MAP[o.status]; if(s) c[s.key]=(c[s.key]||0)+1; });
+    document.querySelectorAll('.pipe-stage').forEach(s=>{
+      const m=s.getAttribute('onclick')?.match(/filterOrders\('(\w+)'\)/);
+      if(m){const cnt=s.querySelector('.pipe-count'); if(cnt) cnt.textContent=c[m[1]]||0;}
+    });
+  }
+
+  function updateStats(orders) {
+    const now=new Date(), today=now.toISOString().slice(0,10), weekAgo=new Date(now-7*86400000);
+    let tO=0,tR=0,wO=0,wR=0;
+    orders.forEach(o=>{const d=new Date(o.date),s=parseFloat(o.total)||0;
+      if(o.date&&o.date.slice(0,10)===today){tO++;tR+=s;} if(d>=weekAgo){wO++;wR+=s;}});
+    const st=document.querySelectorAll('.ostat');
+    if(st[0]){st[0].querySelector('.ostat-value').textContent=tO;st[0].querySelector('.ostat-sub').textContent='на сумму '+fmtSum(tR);}
+    if(st[1]){st[1].querySelector('.ostat-value').textContent=fmtSum(wR);st[1].querySelector('.ostat-sub').textContent=wO+' заказов';}
+    if(st[2]){const avg=wO>0?Math.round(wR/wO):0;st[2].querySelector('.ostat-value').textContent=fmtSum(avg);}
+  }
+
+  function filterBySidebar(ch, el) {
+    document.querySelectorAll('.ch-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    const filtered = ch === 'all' ? allOrders : allOrders.filter(o => {
+      const cm = CHANNEL_MAP[o.channel] || CHANNEL_MAP[o.channel?.toLowerCase()] || {};
+      return cm.key === ch;
+    });
+    renderOrders(filtered);
+  }
+
+  function filterOrders(status) {
+    document.querySelectorAll('.pipe-stage').forEach(s=>s.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.querySelectorAll('#ordersBody tr').forEach(tr=>{tr.style.display=(status==='all'||tr.dataset.status===status)?'':'none';});
+  }
+  function filterChannel(ch,el) {
+    el.parentElement.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('#ordersBody tr').forEach(tr=>{tr.style.display=(ch==='all'||tr.dataset.channel===ch)?'':'none';});
+  }
+  function searchOrders() {
+    const q=document.getElementById('orderSearch').value.toLowerCase();
+    document.querySelectorAll('#ordersBody tr').forEach(tr=>{tr.style.display=tr.textContent.toLowerCase().includes(q)?'':'none';});
+  }
+
+  async function showActions(el) {
+    const tr=el.closest('tr'), sk=tr.dataset.status, oid=tr.dataset.id, nl=NEXT_STATUS[sk];
+    if(!nl) return;
+    if(!confirm('#'+oid+' → «'+nl+'»?')) return;
+    try { await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({_type:'status',orderId:oid,status:nl})}); } catch(e){console.error(e);}
+    const ns=STATUS_MAP[nl]; if(ns){tr.dataset.status=ns.key;const b=tr.querySelector('.status-badge');b.className='status-badge '+ns.cls;b.textContent=ns.label;}
+    // Update the order in allOrders too
+    const o=allOrders.find(x=>x.id===oid); if(o) o.status=nl;
+    updatePipeline(allOrders);
+  }
+
+  async function loadOrders() {
+    if(!API_URL||API_URL==='https://script.google.com/macros/s/AKfycbygMB0RJZg8tHOm1ueGdNob4ihBssXRwAK4MGwBW3Z4IT5X4qA0Guo1tqcRkWnqoBjj/exec'){
+      document.getElementById('ordersBody').innerHTML='<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">API не подключен — задайте ORDERS_API_URL</td></tr>';return;}
+    try {
+      const r=await fetch(API_URL+'?action=orders&limit=200');
+      allOrders=await r.json();
+      if(Array.isArray(allOrders)){renderOrders(allOrders);document.querySelector('.section-count').textContent=allOrders.length+' заказов · Google Sheets (live)';}
+    } catch(e){document.getElementById('ordersBody').innerHTML='<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--red)">Ошибка: '+e.message+'</td></tr>';}
+  }
+  loadOrders();
+  setInterval(loadOrders,60000);
+  </script>
+  </script>
+
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/LOGOTIPE-1.png" alt="SeMaVi"/>
+        <span>SeMaVi</span>
+      </div>
+      <div class="footer-text">Кабинет продавца · Формат WB · Масса Мадре · C'est ma vie</div>
+    </div>
+  </div>
+
+</main>
+</div>
+</body>
+</html>
