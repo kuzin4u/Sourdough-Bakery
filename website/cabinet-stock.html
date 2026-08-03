@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SeMaVi — Склад / FBS</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f5f3f0;--card:#fff;--border:#e0ddd8;--text:#1a1a1a;--muted:#7a7a7a;
+  --wb:#a332ff;--wb-light:#f0e4ff;--gold:#d4a843;--gold-light:#fdf5e3;
+  --green:#2aa05c;--green-light:#e6f7ee;--red:#e74c3c;--red-light:#fdecea;
+  --orange:#f59e0b;--orange-light:#fffbeb;--blue:#3b82f6;
+  --sidebar-bg:#2d1854;--sidebar-text:#e0d6f0;--sidebar-active:#a332ff
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+
+.sidebar{background:var(--sidebar-bg);padding:20px 0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-logo{padding:12px 20px 24px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.sidebar-logo img{width:36px;height:36px;border-radius:8px}
+.sidebar-logo span{color:#fff;font-weight:700;font-size:16px;letter-spacing:1px}
+.sidebar-nav{padding:16px 0}
+.nav-section{padding:6px 20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.3);margin-top:16px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--sidebar-text);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;border-left:3px solid transparent;text-decoration:none}
+.nav-item:hover,.nav-item.active{background:rgba(163,50,255,0.12);color:#fff;border-left-color:var(--sidebar-active)}
+.nav-item .icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.nav-item .badge{margin-left:auto;background:var(--wb);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px}
+
+.main{padding:0}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.topbar-title{font-size:18px;font-weight:700}
+.topbar-right{display:flex;gap:10px}
+.topbar-btn{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px}
+.topbar-btn:hover{border-color:var(--wb)}
+.topbar-btn.primary{background:var(--wb);color:#fff;border-color:var(--wb)}
+
+.content{padding:24px 28px}
+
+/* Metrics */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.metric-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.metric-value{font-size:26px;font-weight:800;margin-top:6px}
+.metric-value.green{color:var(--green)}
+.metric-value.gold{color:var(--gold)}
+.metric-value.red{color:var(--red)}
+.metric-value.wb{color:var(--wb)}
+.metric-sub{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* Bake plan */
+.bake-plan{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:24px}
+.bake-plan-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.bake-plan-title{font-size:15px;font-weight:700}
+.bake-next{display:inline-flex;align-items:center;gap:6px;background:var(--green-light);color:var(--green);padding:5px 12px;border-radius:8px;font-size:12px;font-weight:700}
+.bake-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.bake-sku{background:var(--bg);border-radius:10px;padding:14px;text-align:center}
+.bake-sku-name{font-size:12px;font-weight:600;margin-bottom:8px}
+.bake-sku-count{display:flex;align-items:center;justify-content:center;gap:8px}
+.count-btn{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700}
+.count-btn:hover{border-color:var(--wb);background:var(--wb-light)}
+.count-val{font-size:20px;font-weight:800;min-width:32px;text-align:center}
+.bake-sku-unit{font-size:10px;color:var(--muted);margin-top:4px}
+
+/* Stock table */
+.stock-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px}
+.stock-card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.stock-card-title{font-size:14px;font-weight:700}
+.stock-card-sub{font-size:12px;color:var(--muted);margin-left:auto}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);background:var(--bg);border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px}
+tr:last-child td{border:none}
+tr:hover td{background:#faf8f5}
+
+.stock-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700}
+.stock-ok{background:var(--green-light);color:var(--green)}
+.stock-low{background:var(--orange-light);color:var(--orange)}
+.stock-out{background:var(--red-light);color:var(--red)}
+.stock-dot{width:6px;height:6px;border-radius:50%}
+.dot-ok{background:var(--green)}
+.dot-low{background:var(--orange)}
+.dot-out{background:var(--red)}
+
+.edit-stock{padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:#fff;font-size:12px;cursor:pointer;font-weight:600}
+.edit-stock:hover{border-color:var(--wb)}
+
+/* Channel availability */
+.ch-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:24px}
+.ch-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.ch-card-ico{font-size:20px;margin-bottom:6px}
+.ch-card-name{font-size:10px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.ch-toggle{width:36px;height:20px;border-radius:10px;cursor:pointer;transition:all 0.2s;margin:0 auto;position:relative}
+.ch-toggle.on{background:var(--green)}
+.ch-toggle.off{background:var(--border)}
+.ch-toggle::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:2px;transition:left 0.2s}
+.ch-toggle.on::after{left:18px}
+.ch-toggle.off::after{left:2px}
+
+/* Modal */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center}
+.overlay.show{display:flex}
+.modal{background:#fff;border-radius:16px;padding:28px;width:400px;max-width:90vw}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:16px}
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;margin-bottom:6px;display:block}
+.form-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none}
+.form-input:focus{border-color:var(--wb)}
+.modal-footer{display:flex;gap:10px;margin-top:20px}
+.btn-save{flex:1;padding:12px;background:var(--wb);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer}
+.btn-cancel{padding:12px 20px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:14px;cursor:pointer}
+
+.toast{position:fixed;bottom:24px;right:24px;background:#1a1a1a;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:200;opacity:0;transform:translateY(10px);transition:all 0.3s}
+.toast.show{opacity:1;transform:none}
+
+.footer{background:#fff;border-top:1px solid var(--border);padding:16px 28px;display:flex;align-items:center;gap:12px}
+.footer img{width:24px;height:24px;border-radius:4px}
+.footer-text{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/LOGOTIPE-1.png" alt="SeMaVi"/>
+    <span>SeMaVi</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Каталог</div>
+    <a class="nav-item" href="cabinet-products.html"><span class="icon">🍞</span>Товары</a>
+    <a class="nav-item active"><span class="icon">📦</span>Склад / FBS</a>
+    <a class="nav-item" href="cabinet-prices.html"><span class="icon">💰</span>Цены и скидки</a>
+    <div class="nav-section">Продажи</div>
+    <a class="nav-item" href="cabinet-orders.html"><span class="icon">📋</span>Заказы</a>
+    <a class="nav-item" href="cabinet-analytics.html"><span class="icon">📊</span>Аналитика</a>
+    <a class="nav-item" href="cabinet-funnel.html"><span class="icon">📈</span>Воронка</a>
+    <div class="nav-section">Маркетинг</div>
+    <a class="nav-item" href="cabinet-promo.html"><span class="icon">🚀</span>Продвижение</a>
+    <a class="nav-item" href="cabinet-reviews.html"><span class="icon">⭐</span>Отзывы</a>
+    <div class="nav-section">Настройки</div>
+    <a class="nav-item" href="/"><span class="icon">🏪</span>Каталог</a>
+    <a class="nav-item" href="schedule.html"><span class="icon">🗓️</span>Расписание</a>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title">📦 Склад / FBS</div>
+    <div class="topbar-right">
+      <button class="topbar-btn" onclick="loadAll()">↻ Обновить</button>
+      <button class="topbar-btn primary" onclick="saveBakePlan()">💾 Сохранить план</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Metrics -->
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Запланировано</div>
+        <div class="metric-value wb" id="metPlanned">—</div>
+        <div class="metric-sub">буханок на след. выпечку</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">В наличии</div>
+        <div class="metric-value green" id="metInStock">—</div>
+        <div class="metric-sub">готовых буханок</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Зарезервировано</div>
+        <div class="metric-value gold" id="metReserved">—</div>
+        <div class="metric-sub">под активные заказы</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Следующая выпечка</div>
+        <div class="metric-value" id="metNextBake" style="font-size:15px;margin-top:10px">—</div>
+        <div class="metric-sub">дата и день</div>
+      </div>
+    </div>
+
+    <!-- Channel availability -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:24px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="font-size:15px;font-weight:700">Доступность по каналам</div>
+        <div style="font-size:12px;color:var(--muted)">Включить/выключить продажи в канале</div>
+      </div>
+      <div class="ch-grid" id="chGrid">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+
+    <!-- Bake plan -->
+    <div class="bake-plan">
+      <div class="bake-plan-header">
+        <div class="bake-plan-title">План выпечки</div>
+        <div class="bake-next" id="nextBakeLabel">⏳ Загружаю…</div>
+      </div>
+      <div class="bake-grid" id="bakePlanGrid">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+
+    <!-- Stock by SKU -->
+    <div class="stock-card">
+      <div class="stock-card-header">
+        <div class="stock-card-title">📊 Остатки по SKU</div>
+        <div class="stock-card-sub" id="stockUpdated">обновляется из Google Sheets</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Товар</th>
+            <th>В наличии</th>
+            <th>Запланировано</th>
+            <th>Продано (неделя)</th>
+            <th>Статус</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="stockBody">
+          <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted)">⏳ Загружаю…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <img src="https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/LOGOTIPE-1.png" alt="SeMaVi"/>
+    <div class="footer-text">Склад / FBS · Масса Матере · данные из Google Sheets</div>
+  </div>
+</main>
+</div>
+
+<!-- Edit stock modal -->
+<div class="overlay" id="stockOverlay">
+  <div class="modal">
+    <h3 id="stockModalTitle">Обновить остаток</h3>
+    <input type="hidden" id="stockEditId"/>
+    <div class="form-group">
+      <label class="form-label">В наличии (буханок)</label>
+      <input class="form-input" id="stockInStock" type="number" min="0" placeholder="0"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Запланировано на выпечку</label>
+      <input class="form-input" id="stockPlanned" type="number" min="0" placeholder="0"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Комментарий</label>
+      <input class="form-input" id="stockComment" placeholder="Причина изменения…"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeStockModal()">Отмена</button>
+      <button class="btn-save" onclick="saveStock()">💾 Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbygMB0RJZg8tHOm1ueGdNob4ihBssXRwAK4MGwBW3Z4IT5X4qA0Guo1tqcRkWnqoBjj/exec';
+
+const CHANNELS = [
+  {id:'tg', label:'Telegram', ico:'📱'},
+  {id:'ig', label:'Instagram', ico:'📸'},
+  {id:'vk', label:'VK', ico:'💙'},
+  {id:'ozon', label:'Ozon', ico:'🔵'},
+  {id:'wb', label:'WB', ico:'🟣'},
+  {id:'max', label:'Макс', ico:'💬'},
+  {id:'web', label:'Сайт', ico:'🌐'},
+];
+
+const BAKE_DAYS = [2,4,6]; // Вт,Чт,Сб
+const DAYS_FULL = ['воскресенье','понедельник','вторник','среду','четверг','пятницу','субботу'];
+
+let products = [];
+let stockData = {}; // {id: {inStock, planned, sold}}
+let channelState = {}; // {id: true/false}
+let bakePlan = {}; // {id: count}
+
+function toast(msg, ok=true) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = ok ? '#1a1a1a' : '#e74c3c';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function nextBakeDate() {
+  const MSK = new Date(new Date().getTime() + (new Date().getTimezoneOffset()+180)*60000);
+  for(let i=1;i<=7;i++){
+    const d = new Date(MSK); d.setDate(d.getDate()+i);
+    if(BAKE_DAYS.includes(d.getDay())){
+      return DAYS_FULL[d.getDay()]+', '+String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0');
+    }
+  }
+  return 'скоро';
+}
+
+async function loadAll() {
+  try {
+    const r = await fetch(API+'?action=products');
+    products = await r.json();
+    if(!Array.isArray(products)) throw new Error('Ошибка загрузки товаров');
+
+    // Init stock data (в реальности загружается из Sheets)
+    products.forEach(p => {
+      if(!stockData[p.id]) stockData[p.id] = {inStock:0, planned:6, sold:0};
+      if(!bakePlan[p.id]) bakePlan[p.id] = 6;
+    });
+    CHANNELS.forEach(ch => { if(channelState[ch.id]===undefined) channelState[ch.id]=true; });
+
+    renderAll();
+  } catch(e) {
+    document.getElementById('stockBody').innerHTML =
+      '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--red)">❌ '+e.message+'</td></tr>';
+  }
+}
+
+function renderAll() {
+  const next = nextBakeDate();
+  document.getElementById('metNextBake').textContent = next;
+  document.getElementById('nextBakeLabel').textContent = '🗓 ' + next;
+  document.getElementById('nextBakeLabel').style.background = 'var(--green-light)';
+  document.getElementById('nextBakeLabel').style.color = 'var(--green)';
+
+  const totalPlanned = Object.values(bakePlan).reduce((a,b)=>a+b,0);
+  const totalInStock = Object.values(stockData).reduce((a,b)=>a+(b.inStock||0),0);
+  const totalReserved = Object.values(stockData).reduce((a,b)=>a+(b.sold||0),0);
+
+  document.getElementById('metPlanned').textContent = totalPlanned;
+  document.getElementById('metInStock').textContent = totalInStock;
+  document.getElementById('metReserved').textContent = totalReserved;
+
+  renderChannels();
+  renderBakePlan();
+  renderStockTable();
+}
+
+function renderChannels() {
+  document.getElementById('chGrid').innerHTML = CHANNELS.map(ch => `
+    <div class="ch-card">
+      <div class="ch-card-ico">${ch.ico}</div>
+      <div class="ch-card-name">${ch.label}</div>
+      <div class="ch-toggle ${channelState[ch.id]?'on':'off'}" onclick="toggleChannel('${ch.id}',this)"></div>
+    </div>`).join('');
+}
+
+function toggleChannel(id, el) {
+  channelState[id] = !channelState[id];
+  el.className = 'ch-toggle ' + (channelState[id]?'on':'off');
+  toast(channelState[id] ? '✅ '+id+' включён' : '⛔ '+id+' отключён');
+}
+
+function renderBakePlan() {
+  document.getElementById('bakePlanGrid').innerHTML = products.map(p => `
+    <div class="bake-sku">
+      <div class="bake-sku-name">${p.emoji||'🍞'} ${p.name}</div>
+      <div class="bake-sku-count">
+        <button class="count-btn" onclick="changePlan('${p.id}',-1)">−</button>
+        <div class="count-val" id="plan_${p.id}">${bakePlan[p.id]||0}</div>
+        <button class="count-btn" onclick="changePlan('${p.id}',1)">+</button>
+      </div>
+      <div class="bake-sku-unit">буханок</div>
+    </div>`).join('');
+}
+
+function changePlan(id, delta) {
+  bakePlan[id] = Math.max(0, (bakePlan[id]||0) + delta);
+  document.getElementById('plan_'+id).textContent = bakePlan[id];
+  const total = Object.values(bakePlan).reduce((a,b)=>a+b,0);
+  document.getElementById('metPlanned').textContent = total;
+}
+
+function renderStockTable() {
+  const rows = products.map(p => {
+    const s = stockData[p.id] || {inStock:0, planned:0, sold:0};
+    const status = s.inStock > 3 ? 'ok' : s.inStock > 0 ? 'low' : 'out';
+    const statusLabel = status==='ok' ? '✓ В наличии' : status==='low' ? '⚠ Мало' : '✕ Нет';
+    return `<tr>
+      <td><strong>${p.emoji||'🍞'} ${p.name}</strong><br><span style="font-size:11px;color:var(--muted)">${p.weight} г · ${p.price} ₽</span></td>
+      <td><strong>${s.inStock}</strong> шт</td>
+      <td>${bakePlan[p.id]||0} шт</td>
+      <td>${s.sold||0} шт</td>
+      <td><span class="stock-badge stock-${status}"><span class="stock-dot dot-${status}"></span>${statusLabel}</span></td>
+      <td><button class="edit-stock" onclick="openStockModal('${p.id}')">✏️ Изменить</button></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('stockBody').innerHTML = rows || '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted)">Нет данных</td></tr>';
+  document.getElementById('stockUpdated').textContent = 'обновлено ' + new Date().toLocaleTimeString('ru-RU');
+}
+
+function openStockModal(id) {
+  const p = products.find(x=>x.id===id);
+  const s = stockData[id] || {inStock:0, planned:0};
+  document.getElementById('stockModalTitle').textContent = 'Остаток: ' + (p?p.name:id);
+  document.getElementById('stockEditId').value = id;
+  document.getElementById('stockInStock').value = s.inStock || 0;
+  document.getElementById('stockPlanned').value = bakePlan[id] || 0;
+  document.getElementById('stockComment').value = '';
+  document.getElementById('stockOverlay').classList.add('show');
+}
+
+function closeStockModal() { document.getElementById('stockOverlay').classList.remove('show'); }
+
+async function saveStock() {
+  const id = document.getElementById('stockEditId').value;
+  const inStock = parseInt(document.getElementById('stockInStock').value)||0;
+  const planned = parseInt(document.getElementById('stockPlanned').value)||0;
+  const comment = document.getElementById('stockComment').value;
+
+  stockData[id] = {...(stockData[id]||{}), inStock, planned};
+  bakePlan[id] = planned;
+
+  closeStockModal();
+  renderAll();
+  toast('✅ Остаток обновлён');
+
+  // Сохранить в Sheets
+  try {
+    await fetch(API, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({_type:'stock', id, inStock, planned, comment, updatedAt: new Date().toISOString()})
+    });
+  } catch(e) { console.warn('Stock save error:', e); }
+}
+
+async function saveBakePlan() {
+  toast('💾 Сохраняю план выпечки…');
+  try {
+    await fetch(API, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({_type:'bake_plan', plan: bakePlan, date: nextBakeDate(), updatedAt: new Date().toISOString()})
+    });
+    toast('✅ План выпечки сохранён в Google Sheets');
+  } catch(e) { toast('❌ Ошибка сохранения', false); }
+}
+
+loadAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SeMaVi — Товары</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f5f3f0;--card:#fff;--border:#e0ddd8;--text:#1a1a1a;--muted:#7a7a7a;
+  --wb:#a332ff;--wb-light:#f0e4ff;--gold:#d4a843;--gold-light:#fdf5e3;
+  --green:#2aa05c;--green-light:#e6f7ee;--red:#e74c3c;--red-light:#fdecea;--blue:#3b82f6;
+  --sidebar-bg:#2d1854;--sidebar-text:#e0d6f0;--sidebar-active:#a332ff;
+  --header-bg:#fff;--accent:#a332ff
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+
+/* Sidebar */
+.sidebar{background:var(--sidebar-bg);padding:20px 0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-logo{padding:12px 20px 24px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.sidebar-logo img{width:36px;height:36px;border-radius:8px}
+.sidebar-logo span{color:#fff;font-weight:700;font-size:16px;letter-spacing:1px}
+.sidebar-nav{padding:16px 0}
+.nav-section{padding:6px 20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.3);margin-top:16px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--sidebar-text);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;border-left:3px solid transparent;text-decoration:none}
+.nav-item:hover,.nav-item.active{background:rgba(163,50,255,0.12);color:#fff;border-left-color:var(--sidebar-active)}
+.nav-item .icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.nav-item .badge{margin-left:auto;background:var(--wb);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px}
+
+/* Main */
+.main{padding:0}
+.topbar{background:var(--header-bg);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.topbar-title{font-size:18px;font-weight:700}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar-btn{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none;color:var(--text)}
+.topbar-btn:hover{border-color:var(--wb)}
+.topbar-btn.primary{background:var(--wb);color:#fff;border-color:var(--wb)}
+.topbar-btn.primary:hover{background:#8f1ee0}
+.content{padding:24px 28px}
+
+/* Metrics */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.metric-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.metric-value{font-size:26px;font-weight:800;margin-top:6px}
+.metric-value.wb{color:var(--wb)}
+.metric-value.green{color:var(--green)}
+.metric-value.gold{color:var(--gold)}
+.metric-sub{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* Product cards */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.section-title{font-size:16px;font-weight:700}
+.section-count{font-size:12px;color:var(--muted)}
+
+.products-grid{display:flex;flex-direction:column;gap:16px}
+.pcard{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:grid;grid-template-columns:200px 1fr auto;transition:box-shadow 0.2s}
+.pcard:hover{box-shadow:0 4px 20px rgba(0,0,0,0.08)}
+.pcard-img{background:#faf8f5;display:flex;align-items:center;justify-content:center;min-height:160px;position:relative}
+.pcard-img img{width:100%;height:160px;object-fit:cover}
+.pcard-img-placeholder{font-size:48px}
+.pcard-badges{position:absolute;top:8px;left:8px;display:flex;gap:4px;flex-wrap:wrap}
+.badge{padding:3px 8px;border-radius:4px;font-size:9px;font-weight:700;text-transform:uppercase}
+.badge-active{background:var(--green);color:#fff}
+.badge-hit{background:#c1306c;color:#fff}
+.badge-new{background:var(--wb);color:#fff}
+
+.pcard-body{padding:20px;display:flex;flex-direction:column;gap:8px}
+.pcard-sku{font-size:11px;color:var(--muted);font-family:monospace}
+.pcard-name{font-size:17px;font-weight:700}
+.pcard-desc{font-size:12px;color:var(--muted);line-height:1.5}
+.pcard-meta{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
+.pcard-price{font-size:20px;font-weight:800;color:var(--wb)}
+.pcard-weight{font-size:12px;color:var(--muted);padding:3px 8px;background:var(--bg);border-radius:4px;font-weight:600;align-self:center}
+.pcard-channels{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.ch-tag{padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;background:var(--bg);color:var(--muted)}
+.ch-tag.active{background:var(--wb-light);color:var(--wb)}
+
+.pcard-actions{padding:16px;display:flex;flex-direction:column;gap:8px;border-left:1px solid var(--border);min-width:140px;justify-content:center}
+.action-btn{padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all 0.15s;width:100%}
+.action-btn:hover{border-color:var(--wb);background:var(--wb-light)}
+.action-btn.danger{border-color:var(--red);color:var(--red)}
+.action-btn.danger:hover{background:var(--red-light)}
+.action-btn.primary{background:var(--wb);color:#fff;border-color:var(--wb)}
+.action-btn.primary:hover{background:#8f1ee0}
+
+/* Edit modal */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center}
+.overlay.show{display:flex}
+.modal{background:var(--card);border-radius:16px;padding:28px;width:520px;max-width:90vw;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:18px;font-weight:700;margin-bottom:20px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group.full{grid-column:1/-1}
+.form-label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
+.form-input{padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border 0.15s}
+.form-input:focus{border-color:var(--wb)}
+.form-textarea{padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;resize:vertical;height:80px;transition:border 0.15s}
+.form-textarea:focus{border-color:var(--wb)}
+.modal-footer{display:flex;gap:10px;margin-top:20px}
+.btn-save{flex:1;padding:12px;background:var(--wb);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-cancel{padding:12px 20px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:14px;cursor:pointer;font-family:inherit}
+
+/* Loading */
+.loading{text-align:center;padding:60px;color:var(--muted);font-size:14px}
+.error-msg{text-align:center;padding:40px;color:var(--red);font-size:14px}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:#1a1a1a;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:200;opacity:0;transform:translateY(10px);transition:all 0.3s}
+.toast.show{opacity:1;transform:none}
+
+/* Footer */
+.footer{background:var(--card);border-top:1px solid var(--border);padding:16px 28px;display:flex;align-items:center;gap:12px}
+.footer-brand{display:flex;align-items:center;gap:8px}
+.footer-brand img{width:24px;height:24px;border-radius:4px}
+.footer-brand span{font-weight:700;font-size:13px}
+.footer-text{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/LOGOTIPE-1.png" alt="SeMaVi"/>
+    <span>SeMaVi</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Каталог</div>
+    <a class="nav-item active" href="cabinet-products.html"><span class="icon">🍞</span>Товары<span class="badge" id="sideProductCount">4</span></a>
+    <a class="nav-item" href="cabinet-stock.html"><span class="icon">📦</span>Склад / FBS</a>
+    <a class="nav-item" href="cabinet-prices.html"><span class="icon">💰</span>Цены и скидки</a>
+    <div class="nav-section">Продажи</div>
+    <a class="nav-item" href="cabinet-orders.html"><span class="icon">📋</span>Заказы</a>
+    <a class="nav-item" href="cabinet-analytics.html"><span class="icon">📊</span>Аналитика</a>
+    <a class="nav-item" href="cabinet-funnel.html"><span class="icon">📈</span>Воронка</a>
+    <div class="nav-section">Маркетинг</div>
+    <a class="nav-item" href="cabinet-promo.html"><span class="icon">🚀</span>Продвижение</a>
+    <a class="nav-item" href="cabinet-reviews.html"><span class="icon">⭐</span>Отзывы</a>
+    <div class="nav-section">Настройки</div>
+    <a class="nav-item" href="/"><span class="icon">🏪</span>Каталог</a>
+    <a class="nav-item" href="schedule.html"><span class="icon">🗓️</span>Расписание</a>
+  </nav>
+</aside>
+
+<!-- Main -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title">🍞 Товары</div>
+    <div class="topbar-right">
+      <button class="topbar-btn" onclick="loadProducts()">↻ Обновить</button>
+      <button class="topbar-btn primary" onclick="openAddModal()">+ Добавить товар</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Metrics -->
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Всего SKU</div>
+        <div class="metric-value wb" id="metTotal">—</div>
+        <div class="metric-sub">активных товаров</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Ср. цена</div>
+        <div class="metric-value gold" id="metAvgPrice">—</div>
+        <div class="metric-sub">по всем SKU</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Мин. цена</div>
+        <div class="metric-value green" id="metMinPrice">—</div>
+        <div class="metric-sub">самый доступный</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Макс. цена</div>
+        <div class="metric-value" id="metMaxPrice">—</div>
+        <div class="metric-sub">премиум SKU</div>
+      </div>
+    </div>
+
+    <!-- Products list -->
+    <div class="section-header">
+      <div>
+        <div class="section-title">Каталог товаров</div>
+        <div class="section-count" id="productsCount">Загружаю из Google Sheets…</div>
+      </div>
+    </div>
+
+    <div class="products-grid" id="productsGrid">
+      <div class="loading">⏳ Загружаю товары из Google Sheets…</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-brand">
+      <img src="https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/LOGOTIPE-1.png" alt="SeMaVi"/>
+      <span>SeMaVi</span>
+    </div>
+    <div class="footer-text">Управление товарами · Масса Матере · данные из Google Sheets</div>
+  </div>
+</main>
+</div>
+
+<!-- Edit Modal -->
+<div class="overlay" id="editOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Редактировать товар</h3>
+    <input type="hidden" id="editId"/>
+    <div class="form-row">
+      <div class="form-group">
+        <div class="form-label">Название</div>
+        <input class="form-input" id="editName" placeholder="Тартин"/>
+      </div>
+      <div class="form-group">
+        <div class="form-label">ID (slug)</div>
+        <input class="form-input" id="editSlug" placeholder="wheat"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <div class="form-label">Цена (₽)</div>
+        <input class="form-input" id="editPrice" type="number" placeholder="380"/>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Вес (г)</div>
+        <input class="form-input" id="editWeight" type="number" placeholder="650"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group full">
+        <div class="form-label">Описание</div>
+        <textarea class="form-textarea" id="editDesc" placeholder="Описание товара…"></textarea>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group full">
+        <div class="form-label">URL фото</div>
+        <input class="form-input" id="editPhoto" placeholder="https://..."/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <div class="form-label">Эмодзи</div>
+        <input class="form-input" id="editEmoji" placeholder="🍞"/>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Статус</div>
+        <select class="form-input" id="editStatus">
+          <option value="active">Активен</option>
+          <option value="hidden">Скрыт</option>
+          <option value="out">Нет в наличии</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Отмена</button>
+      <button class="btn-save" onclick="saveProduct()">💾 Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbygMB0RJZg8tHOm1ueGdNob4ihBssXRwAK4MGwBW3Z4IT5X4qA0Guo1tqcRkWnqoBjj/exec';
+let products = [];
+
+const PHOTOS = {
+  wheat:      'https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/Tartin_1.jpeg',
+  rye:        'https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/Zavarnoi_1.jpeg',
+  seeds:      'https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/Borodinsky_1.jpeg',
+  wholegrain: 'https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/Tartin_syrn.jpeg',
+};
+
+function toast(msg, ok=true) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = ok ? '#1a1a1a' : '#e74c3c';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function fmtPrice(n) { return Number(n).toLocaleString('ru-RU') + ' ₽'; }
+
+async function loadProducts() {
+  document.getElementById('productsGrid').innerHTML = '<div class="loading">⏳ Загружаю из Google Sheets…</div>';
+  try {
+    const r = await fetch(API + '?action=products');
+    const data = await r.json();
+    if (!Array.isArray(data)) throw new Error(data.error || 'Ошибка');
+    products = data;
+    renderProducts();
+    renderMetrics();
+  } catch(e) {
+    document.getElementById('productsGrid').innerHTML = '<div class="error-msg">❌ Ошибка: ' + e.message + '</div>';
+  }
+}
+
+function renderMetrics() {
+  const prices = products.map(p => parseInt(p.price)||0).filter(Boolean);
+  document.getElementById('metTotal').textContent = products.length;
+  document.getElementById('sideProductCount').textContent = products.length;
+  document.getElementById('productsCount').textContent = products.length + ' SKU · Google Sheets (live)';
+  if (prices.length) {
+    document.getElementById('metAvgPrice').textContent = fmtPrice(Math.round(prices.reduce((a,b)=>a+b,0)/prices.length));
+    document.getElementById('metMinPrice').textContent = fmtPrice(Math.min(...prices));
+    document.getElementById('metMaxPrice').textContent = fmtPrice(Math.max(...prices));
+  }
+}
+
+function renderProducts() {
+  const grid = document.getElementById('productsGrid');
+  if (!products.length) { grid.innerHTML = '<div class="loading">Товаров нет</div>'; return; }
+  grid.innerHTML = products.map(p => {
+    const photo = p.photo || PHOTOS[p.id] || '';
+    const imgHtml = photo
+      ? `<img src="${photo}" alt="${p.name}" onerror="this.style.display='none'">`
+      : `<div class="pcard-img-placeholder">${p.emoji || '🍞'}</div>`;
+    return `<div class="pcard">
+      <div class="pcard-img">
+        ${imgHtml}
+        <div class="pcard-badges"><span class="badge badge-active">Активен</span></div>
+      </div>
+      <div class="pcard-body">
+        <div class="pcard-sku">SKU: ${p.id}</div>
+        <div class="pcard-name">${p.emoji||'🍞'} ${p.name}</div>
+        <div class="pcard-desc">${p.description || '—'}</div>
+        <div class="pcard-meta">
+          <div class="pcard-price">${fmtPrice(p.price)}</div>
+          <div class="pcard-weight">${p.weight} г</div>
+        </div>
+        <div class="pcard-channels">
+          <span class="ch-tag active">📱 Telegram</span>
+          <span class="ch-tag active">🌐 Сайт</span>
+          <span class="ch-tag active">💙 VK</span>
+        </div>
+      </div>
+      <div class="pcard-actions">
+        <button class="action-btn primary" onclick="openEditModal('${p.id}')">✏️ Редактировать</button>
+        <a class="action-btn" href="card.html?id=${p.id}" target="_blank">👁 Карточка</a>
+        <button class="action-btn" onclick="copyProduct('${p.id}')">📋 Копировать</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openEditModal(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('modalTitle').textContent = 'Редактировать: ' + p.name;
+  document.getElementById('editId').value = p.id;
+  document.getElementById('editName').value = p.name || '';
+  document.getElementById('editSlug').value = p.id || '';
+  document.getElementById('editPrice').value = p.price || '';
+  document.getElementById('editWeight').value = p.weight || '';
+  document.getElementById('editDesc').value = p.description || '';
+  document.getElementById('editPhoto').value = p.photo || PHOTOS[p.id] || '';
+  document.getElementById('editEmoji').value = p.emoji || '🍞';
+  document.getElementById('editStatus').value = p.status || 'active';
+  document.getElementById('editOverlay').classList.add('show');
+}
+
+function openAddModal() {
+  document.getElementById('modalTitle').textContent = 'Добавить товар';
+  document.getElementById('editId').value = '';
+  ['editName','editSlug','editPrice','editWeight','editDesc','editPhoto'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('editEmoji').value = '🍞';
+  document.getElementById('editStatus').value = 'active';
+  document.getElementById('editOverlay').classList.add('show');
+}
+
+function closeModal() { document.getElementById('editOverlay').classList.remove('show'); }
+
+async function saveProduct() {
+  const data = {
+    _type: 'product',
+    id: document.getElementById('editSlug').value || document.getElementById('editId').value,
+    name: document.getElementById('editName').value,
+    price: document.getElementById('editPrice').value,
+    weight: document.getElementById('editWeight').value,
+    description: document.getElementById('editDesc').value,
+    photo: document.getElementById('editPhoto').value,
+    emoji: document.getElementById('editEmoji').value,
+    status: document.getElementById('editStatus').value,
+  };
+  try {
+    await fetch(API, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(data)});
+    toast('✅ Товар сохранён в Google Sheets');
+    closeModal();
+    setTimeout(loadProducts, 1500);
+  } catch(e) {
+    toast('❌ Ошибка: ' + e.message, false);
+  }
+}
+
+function copyProduct(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  const text = `${p.emoji||'🍞'} ${p.name} — ${p.price} ₽ / ${p.weight} г`;
+  navigator.clipboard.writeText(text).then(() => toast('📋 Скопировано'));
+}
+
+loadProducts();
+</script>
+</body>
+</html>
