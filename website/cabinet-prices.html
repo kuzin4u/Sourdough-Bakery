@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SeMaVi — Цены и скидки</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f5f3f0;--card:#fff;--border:#e0ddd8;--text:#1a1a1a;--muted:#7a7a7a;
+  --wb:#a332ff;--wb-light:#f0e4ff;--gold:#d4a843;--gold-light:#fdf5e3;
+  --green:#2aa05c;--green-light:#e6f7ee;--red:#e74c3c;--red-light:#fdecea;
+  --orange:#f59e0b;--orange-light:#fffbeb;
+  --sidebar-bg:#2d1854;--sidebar-text:#e0d6f0;--sidebar-active:#a332ff
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+
+.sidebar{background:var(--sidebar-bg);padding:20px 0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-logo{padding:12px 20px 24px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.sidebar-logo img{width:36px;height:36px;border-radius:8px}
+.sidebar-logo span{color:#fff;font-weight:700;font-size:16px;letter-spacing:1px}
+.sidebar-nav{padding:16px 0}
+.nav-section{padding:6px 20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.3);margin-top:16px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--sidebar-text);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;border-left:3px solid transparent;text-decoration:none}
+.nav-item:hover,.nav-item.active{background:rgba(163,50,255,0.12);color:#fff;border-left-color:var(--sidebar-active)}
+.nav-item .icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+
+.main{padding:0}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.topbar-title{font-size:18px;font-weight:700}
+.topbar-right{display:flex;gap:10px}
+.topbar-btn{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px}
+.topbar-btn:hover{border-color:var(--wb)}
+.topbar-btn.primary{background:var(--wb);color:#fff;border-color:var(--wb)}
+.topbar-btn.primary:hover{background:#8f1ee0}
+
+.content{padding:24px 28px}
+
+/* Metrics */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.metric-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.metric-value{font-size:26px;font-weight:800;margin-top:6px}
+.metric-value.wb{color:var(--wb)}
+.metric-value.green{color:var(--green)}
+.metric-value.gold{color:var(--gold)}
+.metric-value.red{color:var(--red)}
+.metric-sub{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* Price table */
+.price-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px}
+.price-card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.price-card-title{font-size:14px;font-weight:700}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);background:var(--bg);border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+tr:last-child td{border:none}
+tr:hover td{background:#faf8f5}
+
+.price-input{width:90px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;font-weight:700;font-family:inherit;text-align:right;outline:none;transition:border 0.15s}
+.price-input:focus{border-color:var(--wb)}
+.price-input.changed{border-color:var(--gold);background:var(--gold-light)}
+
+.discount-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700}
+.disc-active{background:var(--red-light);color:var(--red)}
+.disc-none{background:var(--bg);color:var(--muted)}
+
+.old-price{text-decoration:line-through;color:var(--muted);font-size:12px}
+.new-price{font-weight:800;color:var(--red)}
+
+/* Promo section */
+.promo-section{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px}
+.promo-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.promo-title{font-size:15px;font-weight:700}
+.add-promo-btn{padding:8px 16px;border-radius:8px;background:var(--wb);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer}
+
+.promo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:900px){.promo-grid{grid-template-columns:1fr}}
+.promo-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;position:relative}
+.promo-card.active-promo{border-color:var(--green);background:var(--green-light)}
+.promo-code{font-size:18px;font-weight:800;letter-spacing:2px;color:var(--wb);margin-bottom:6px}
+.promo-desc{font-size:12px;color:var(--muted);margin-bottom:10px}
+.promo-stats{display:flex;gap:12px}
+.promo-stat{font-size:11px;color:var(--muted)}
+.promo-stat strong{color:var(--text);display:block;font-size:14px}
+.promo-actions{display:flex;gap:6px;margin-top:12px}
+.promo-btn{padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:#fff;font-size:11px;font-weight:600;cursor:pointer}
+.promo-btn:hover{border-color:var(--wb)}
+.promo-btn.danger{border-color:var(--red);color:var(--red)}
+.promo-status{position:absolute;top:10px;right:10px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px}
+.status-active{background:var(--green);color:#fff}
+.status-inactive{background:var(--muted);color:#fff}
+
+/* Seasonal discounts */
+.season-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.season-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px}
+.season-name{font-size:13px;font-weight:700;margin-bottom:4px}
+.season-dates{font-size:11px;color:var(--muted);margin-bottom:10px}
+.season-disc{font-size:22px;font-weight:800;color:var(--red)}
+
+/* Modal */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center}
+.overlay.show{display:flex}
+.modal{background:#fff;border-radius:16px;padding:28px;width:460px;max-width:90vw}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:20px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group.full{grid-column:1/-1}
+.form-label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
+.form-input{padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border 0.15s}
+.form-input:focus{border-color:var(--wb)}
+.form-select{padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:#fff}
+.modal-footer{display:flex;gap:10px;margin-top:20px}
+.btn-save{flex:1;padding:12px;background:var(--wb);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer}
+.btn-cancel{padding:12px 20px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:14px;cursor:pointer}
+
+.toast{position:fixed;bottom:24px;right:24px;background:#1a1a1a;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:200;opacity:0;transform:translateY(10px);transition:all 0.3s}
+.toast.show{opacity:1;transform:none}
+
+.footer{background:#fff;border-top:1px solid var(--border);padding:16px 28px;display:flex;align-items:center;gap:12px}
+.footer img{width:24px;height:24px;border-radius:4px}
+.footer-text{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/LOGOTIPE-1.png" alt="SeMaVi"/>
+    <span>SeMaVi</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Каталог</div>
+    <a class="nav-item" href="cabinet-products.html"><span class="icon">🍞</span>Товары</a>
+    <a class="nav-item" href="cabinet-stock.html"><span class="icon">📦</span>Склад / FBS</a>
+    <a class="nav-item active"><span class="icon">💰</span>Цены и скидки</a>
+    <div class="nav-section">Продажи</div>
+    <a class="nav-item" href="cabinet-orders.html"><span class="icon">📋</span>Заказы</a>
+    <a class="nav-item" href="cabinet-analytics.html"><span class="icon">📊</span>Аналитика</a>
+    <a class="nav-item" href="cabinet-funnel.html"><span class="icon">📈</span>Воронка</a>
+    <div class="nav-section">Маркетинг</div>
+    <a class="nav-item" href="cabinet-promo.html"><span class="icon">🚀</span>Продвижение</a>
+    <a class="nav-item" href="cabinet-reviews.html"><span class="icon">⭐</span>Отзывы</a>
+    <div class="nav-section">Настройки</div>
+    <a class="nav-item" href="schedule.html"><span class="icon">🗓️</span>Расписание</a>
+    <a class="nav-item" href="/"><span class="icon">🌐</span>Каталог</a>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title">💰 Цены и скидки</div>
+    <div class="topbar-right">
+      <button class="topbar-btn" onclick="loadProducts()">↻ Обновить</button>
+      <button class="topbar-btn primary" onclick="savePrices()">💾 Сохранить цены</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Metrics -->
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Ср. цена SKU</div>
+        <div class="metric-value wb" id="metAvg">—</div>
+        <div class="metric-sub">по всем товарам</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Активных промокодов</div>
+        <div class="metric-value green" id="metPromos">1</div>
+        <div class="metric-sub">REELS активен</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Макс. скидка</div>
+        <div class="metric-value red" id="metMaxDisc">10%</div>
+        <div class="metric-sub">по промокоду REELS</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Использовано промо</div>
+        <div class="metric-value gold" id="metPromoUsed">—</div>
+        <div class="metric-sub">раз за месяц</div>
+      </div>
+    </div>
+
+    <!-- Price table by SKU -->
+    <div class="price-card">
+      <div class="price-card-header">
+        <div class="price-card-title">Базовые цены по SKU</div>
+        <div style="font-size:12px;color:var(--muted)">Изменения сохраняются в Google Sheets</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Товар</th>
+            <th>Текущая цена</th>
+            <th>Новая цена</th>
+            <th>Скидка</th>
+            <th>Цена по акции</th>
+            <th>Изменение</th>
+          </tr>
+        </thead>
+        <tbody id="priceBody">
+          <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted)">⏳ Загружаю из Google Sheets…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Channel prices -->
+    <div class="price-card">
+      <div class="price-card-header">
+        <div class="price-card-title">Цены по каналам</div>
+        <div style="font-size:12px;color:var(--muted)">Разные цены для разных платформ</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Товар</th>
+            <th>📱 Telegram</th>
+            <th>🌐 Сайт</th>
+            <th>💙 VK</th>
+            <th>🔵 Ozon</th>
+            <th>🟣 WB</th>
+          </tr>
+        </thead>
+        <tbody id="channelPriceBody">
+          <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted)">⏳ Загружаю…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Promo codes -->
+    <div class="promo-section">
+      <div class="promo-header">
+        <div class="promo-title">🎁 Промокоды</div>
+        <button class="add-promo-btn" onclick="openPromoModal()">+ Добавить промокод</button>
+      </div>
+      <div class="promo-grid" id="promoGrid">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+
+    <!-- Seasonal discounts -->
+    <div class="promo-section">
+      <div class="promo-header">
+        <div class="promo-title">📅 Сезонные акции</div>
+        <button class="add-promo-btn" onclick="openSeasonModal()">+ Добавить акцию</button>
+      </div>
+      <div class="season-grid" id="seasonGrid">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <img src="https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/LOGOTIPE-1.png" alt="SeMaVi"/>
+    <div class="footer-text">Цены и скидки · Масса Матере · данные из Google Sheets</div>
+  </div>
+</main>
+</div>
+
+<!-- Promo modal -->
+<div class="overlay" id="promoOverlay">
+  <div class="modal">
+    <h3>Создать промокод</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <div class="form-label">Промокод</div>
+        <input class="form-input" id="promoCode" placeholder="REELS" style="text-transform:uppercase"/>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Скидка (%)</div>
+        <input class="form-input" id="promoDisc" type="number" min="1" max="50" placeholder="10"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <div class="form-label">Дата начала</div>
+        <input class="form-input" id="promoStart" type="date"/>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Дата окончания</div>
+        <input class="form-input" id="promoEnd" type="date"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group full">
+        <div class="form-label">Описание</div>
+        <input class="form-input" id="promoDesc" placeholder="Скидка для подписчиков Instagram"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <div class="form-label">Лимит использований</div>
+        <input class="form-input" id="promoLimit" type="number" placeholder="∞ (без лимита)"/>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Применяется к</div>
+        <select class="form-select" id="promoApply">
+          <option value="all">Все товары</option>
+          <option value="wheat">Тартин</option>
+          <option value="rye">Заварной</option>
+          <option value="seeds">Бородинский</option>
+          <option value="wholegrain">Тартин сырный</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closePromoModal()">Отмена</button>
+      <button class="btn-save" onclick="savePromo()">💾 Создать</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbygMB0RJZg8tHOm1ueGdNob4ihBssXRwAK4MGwBW3Z4IT5X4qA0Guo1tqcRkWnqoBjj/exec';
+let products = [];
+let priceChanges = {};
+
+const PROMOS = [
+  {code:'REELS', disc:10, desc:'Скидка для подписчиков Instagram Reels', used:7, limit:null, active:true, apply:'all'},
+];
+
+const SEASONS = [
+  {name:'Новый год', dates:'25 дек — 5 янв', disc:'15%', color:'#c1306c'},
+  {name:'День всех влюблённых', dates:'10–14 февр', disc:'10%', color:'#e74c3c'},
+];
+
+function toast(msg, ok=true) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = ok ? '#1a1a1a' : '#e74c3c';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+function fmtPrice(n) { return Number(n).toLocaleString('ru-RU') + ' ₽'; }
+
+async function loadProducts() {
+  try {
+    const r = await fetch(API+'?action=products');
+    products = await r.json();
+    if(!Array.isArray(products)) throw new Error('Ошибка');
+    renderPriceTable();
+    renderChannelPrices();
+    renderMetrics();
+  } catch(e) {
+    document.getElementById('priceBody').innerHTML =
+      '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--red)">❌ '+e.message+'</td></tr>';
+  }
+}
+
+function renderMetrics() {
+  const prices = products.map(p=>parseInt(p.price)||0).filter(Boolean);
+  if(prices.length) {
+    document.getElementById('metAvg').textContent = fmtPrice(Math.round(prices.reduce((a,b)=>a+b)/prices.length));
+  }
+}
+
+function renderPriceTable() {
+  document.getElementById('priceBody').innerHTML = products.map(p => {
+    const curr = parseInt(p.price)||0;
+    const disc = parseInt(p.discount)||0;
+    const salePrice = disc > 0 ? Math.round(curr*(1-disc/100)) : 0;
+    return `<tr>
+      <td><strong>${p.emoji||'🍞'} ${p.name}</strong><br><span style="font-size:11px;color:var(--muted)">${p.weight} г</span></td>
+      <td><strong>${fmtPrice(curr)}</strong></td>
+      <td><input class="price-input" type="number" value="${curr}" data-id="${p.id}" data-orig="${curr}" oninput="onPriceChange(this)"/></td>
+      <td>
+        <input style="width:60px" class="price-input" type="number" value="${disc}" min="0" max="90" data-disc="${p.id}" oninput="onDiscChange(this)"/>
+        <span style="font-size:11px;color:var(--muted)"> %</span>
+      </td>
+      <td>${disc>0 ? `<span class="old-price">${fmtPrice(curr)}</span> <span class="new-price">${fmtPrice(salePrice)}</span>` : '<span style="color:var(--muted)">—</span>'}</td>
+      <td id="change_${p.id}" style="color:var(--muted);font-size:12px">—</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderChannelPrices() {
+  // Цены по каналам — базовая цена × коэффициент канала
+  const CH_COEFF = {tg:1.0, web:1.0, vk:1.0, ozon:1.15, wb:1.18};
+  document.getElementById('channelPriceBody').innerHTML = products.map(p => {
+    const base = parseInt(p.price)||0;
+    return `<tr>
+      <td><strong>${p.emoji||'🍞'} ${p.name}</strong></td>
+      <td>${fmtPrice(Math.round(base*CH_COEFF.tg))}</td>
+      <td>${fmtPrice(Math.round(base*CH_COEFF.web))}</td>
+      <td>${fmtPrice(Math.round(base*CH_COEFF.vk))}</td>
+      <td>${fmtPrice(Math.round(base*CH_COEFF.ozon))} <span style="font-size:10px;color:var(--muted)">(+15%)</span></td>
+      <td>${fmtPrice(Math.round(base*CH_COEFF.wb))} <span style="font-size:10px;color:var(--muted)">(+18%)</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function onPriceChange(el) {
+  const id = el.dataset.id;
+  const orig = parseInt(el.dataset.orig)||0;
+  const newVal = parseInt(el.value)||0;
+  priceChanges[id] = newVal;
+  el.classList.toggle('changed', newVal !== orig);
+  const delta = newVal - orig;
+  const pct = orig ? Math.round((delta/orig)*100) : 0;
+  document.getElementById('change_'+id).textContent =
+    delta === 0 ? '—' : (delta>0?'▲ +':'▼ ') + Math.abs(delta) + ' ₽ (' + (pct>0?'+':'') + pct + '%)';
+  document.getElementById('change_'+id).style.color = delta>0?'var(--red)':delta<0?'var(--green)':'var(--muted)';
+}
+
+function onDiscChange(el) {
+  const id = el.dataset.disc;
+  const p = products.find(x=>x.id===id);
+  if(!p) return;
+  const curr = parseInt(p.price)||0;
+  const disc = parseInt(el.value)||0;
+  const salePrice = disc>0 ? Math.round(curr*(1-disc/100)) : 0;
+  const row = el.closest('tr');
+  const lastTd = row.cells[4];
+  lastTd.innerHTML = disc>0
+    ? `<span class="old-price">${fmtPrice(curr)}</span> <span class="new-price">${fmtPrice(salePrice)}</span>`
+    : '<span style="color:var(--muted)">—</span>';
+}
+
+async function savePrices() {
+  if(!Object.keys(priceChanges).length) { toast('Нет изменений'); return; }
+  toast('💾 Сохраняю цены…');
+  try {
+    await fetch(API, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({_type:'prices', changes: priceChanges, updatedAt: new Date().toISOString()})
+    });
+    toast('✅ Цены сохранены в Google Sheets');
+    priceChanges = {};
+    document.querySelectorAll('.price-input').forEach(el => {
+      el.dataset.orig = el.value;
+      el.classList.remove('changed');
+    });
+  } catch(e) { toast('❌ Ошибка: '+e.message, false); }
+}
+
+function renderPromos() {
+  document.getElementById('promoGrid').innerHTML = PROMOS.map((p,i) => `
+    <div class="promo-card ${p.active?'active-promo':''}">
+      <span class="promo-status ${p.active?'status-active':'status-inactive'}">${p.active?'Активен':'Выкл'}</span>
+      <div class="promo-code">${p.code}</div>
+      <div class="promo-desc">Скидка ${p.disc}% · ${p.desc}</div>
+      <div class="promo-stats">
+        <div class="promo-stat"><strong>${p.used||0}</strong>использований</div>
+        <div class="promo-stat"><strong>${p.limit||'∞'}</strong>лимит</div>
+        <div class="promo-stat"><strong>${p.apply==='all'?'Все':'SKU'}</strong>товары</div>
+      </div>
+      <div class="promo-actions">
+        <button class="promo-btn" onclick="togglePromo(${i})">${p.active?'⛔ Выкл':'✅ Вкл'}</button>
+        <button class="promo-btn danger" onclick="deletePromo(${i})">🗑 Удалить</button>
+      </div>
+    </div>`).join('');
+  document.getElementById('metPromos').textContent = PROMOS.filter(p=>p.active).length;
+}
+
+function renderSeasons() {
+  document.getElementById('seasonGrid').innerHTML = SEASONS.map((s,i) => `
+    <div class="season-card">
+      <div class="season-name">${s.name}</div>
+      <div class="season-dates">📅 ${s.dates}</div>
+      <div class="season-disc">${s.disc}</div>
+    </div>`).join('');
+}
+
+function togglePromo(i) { PROMOS[i].active = !PROMOS[i].active; renderPromos(); toast(PROMOS[i].active?'✅ Промокод активирован':'⛔ Промокод отключён'); }
+function deletePromo(i) { if(confirm('Удалить промокод '+PROMOS[i].code+'?')){ PROMOS.splice(i,1); renderPromos(); toast('🗑 Промокод удалён'); } }
+function openPromoModal() { document.getElementById('promoOverlay').classList.add('show'); }
+function closePromoModal() { document.getElementById('promoOverlay').classList.remove('show'); }
+function openSeasonModal() { toast('Сезонные акции — скоро', true); }
+
+function savePromo() {
+  const code = document.getElementById('promoCode').value.toUpperCase().trim();
+  const disc = parseInt(document.getElementById('promoDisc').value)||0;
+  const desc = document.getElementById('promoDesc').value;
+  const limit = parseInt(document.getElementById('promoLimit').value)||null;
+  const apply = document.getElementById('promoApply').value;
+  if(!code || !disc) { toast('Заполните код и скидку', false); return; }
+  PROMOS.push({code, disc, desc, used:0, limit, active:true, apply});
+  renderPromos();
+  closePromoModal();
+  toast('✅ Промокод '+code+' создан');
+}
+
+loadProducts();
+renderPromos();
+renderSeasons();
+</script>
+</body>
+</html>
