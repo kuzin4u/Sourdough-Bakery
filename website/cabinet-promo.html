@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SeMaVi — Продвижение</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f5f3f0;--card:#fff;--border:#e0ddd8;--text:#1a1a1a;--muted:#7a7a7a;
+  --wb:#a332ff;--wb-light:#f0e4ff;--gold:#d4a843;--gold-light:#fdf5e3;
+  --green:#2aa05c;--green-light:#e6f7ee;--red:#e74c3c;--red-light:#fdecea;
+  --orange:#f59e0b;--orange-light:#fffbeb;--blue:#3b82f6;--blue-light:#eff6ff;
+  --pink:#e1306c;--pink-light:#fce4ec;
+  --sidebar-bg:#2d1854;--sidebar-text:#e0d6f0;--sidebar-active:#a332ff
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+
+.sidebar{background:var(--sidebar-bg);padding:20px 0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-logo{padding:12px 20px 24px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.sidebar-logo img{width:36px;height:36px;border-radius:8px}
+.sidebar-logo span{color:#fff;font-weight:700;font-size:16px;letter-spacing:1px}
+.sidebar-nav{padding:16px 0}
+.nav-section{padding:6px 20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.3);margin-top:16px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--sidebar-text);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;border-left:3px solid transparent;text-decoration:none}
+.nav-item:hover,.nav-item.active{background:rgba(163,50,255,0.12);color:#fff;border-left-color:var(--sidebar-active)}
+.nav-item .icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+
+.main{padding:0}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.topbar-title{font-size:18px;font-weight:700}
+.topbar-right{display:flex;gap:10px}
+.topbar-btn{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px}
+.topbar-btn:hover{border-color:var(--wb)}
+.topbar-btn.primary{background:var(--wb);color:#fff;border-color:var(--wb)}
+.topbar-btn.primary:hover{background:#8f1ee0}
+
+.content{padding:24px 28px}
+
+/* Metrics */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.metric-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.metric-value{font-size:26px;font-weight:800;margin-top:6px}
+.metric-value.wb{color:var(--wb)}
+.metric-value.green{color:var(--green)}
+.metric-value.gold{color:var(--gold)}
+.metric-value.pink{color:var(--pink)}
+.metric-sub{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* Section */
+.section{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-size:15px;font-weight:700}
+.add-btn{padding:8px 16px;border-radius:8px;background:var(--wb);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.add-btn:hover{background:#8f1ee0}
+.add-btn.green{background:var(--green)}
+.add-btn.green:hover{background:#1e8a4a}
+
+/* Broadcast */
+.broadcast-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(max-width:900px){.broadcast-grid{grid-template-columns:1fr}}
+.bc-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;position:relative}
+.bc-card.active{border-color:var(--green);background:var(--green-light)}
+.bc-card.scheduled{border-color:var(--gold);background:var(--gold-light)}
+.bc-type{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px}
+.bc-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.bc-text{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:10px}
+.bc-meta{display:flex;gap:12px;flex-wrap:wrap}
+.bc-meta-item{font-size:11px;color:var(--muted)}
+.bc-meta-item strong{color:var(--text);display:block;font-size:13px;font-weight:700}
+.bc-status{position:absolute;top:10px;right:10px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px}
+.bs-active{background:var(--green);color:#fff}
+.bs-scheduled{background:var(--gold);color:#fff}
+.bs-draft{background:var(--muted);color:#fff}
+.bc-actions{display:flex;gap:6px;margin-top:12px}
+.bc-btn{padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit}
+.bc-btn:hover{border-color:var(--wb)}
+.bc-btn.danger{border-color:var(--red);color:var(--red)}
+
+/* Reels tracker */
+.reels-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:900px){.reels-grid{grid-template-columns:1fr}}
+.reel-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px}
+.reel-day{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
+.reel-title{font-size:13px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.reel-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.reel-stat{text-align:center;background:var(--card);border-radius:6px;padding:6px}
+.reel-stat-val{font-size:14px;font-weight:800}
+.reel-stat-label{font-size:9px;color:var(--muted);text-transform:uppercase}
+.reel-orders{display:flex;align-items:center;gap:6px;font-size:11px}
+.reel-orders-val{font-weight:800;color:var(--green);font-size:14px}
+.reel-status{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;margin-bottom:8px}
+.rs-published{background:var(--green);color:#fff}
+.rs-planned{background:var(--gold-light);color:var(--gold)}
+.rs-idea{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+
+/* Content calendar */
+.cal-week{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:8px}
+.cal-day-label{text-align:center;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;padding:4px}
+.cal-day{min-height:80px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px;cursor:pointer;transition:all 0.15s}
+.cal-day:hover{border-color:var(--wb)}
+.cal-day.today{border-color:var(--blue);background:var(--blue-light)}
+.cal-day.has-content{background:var(--green-light);border-color:var(--green)}
+.cal-day.planned{background:var(--gold-light);border-color:var(--gold)}
+.cal-day-num{font-size:11px;font-weight:700;margin-bottom:4px}
+.cal-content-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:2px}
+.dot-reels{background:var(--pink)}
+.dot-post{background:var(--blue)}
+.dot-story{background:var(--gold)}
+.cal-content-label{font-size:9px;color:var(--muted);line-height:1.3}
+
+/* Channel status */
+.ch-status-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
+.ch-status-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.ch-ico{font-size:22px;margin-bottom:6px}
+.ch-name{font-size:10px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.ch-metric{font-size:16px;font-weight:800;margin-bottom:2px}
+.ch-sub{font-size:9px;color:var(--muted)}
+.ch-growth{font-size:10px;font-weight:700;margin-top:4px}
+.growth-up{color:var(--green)}
+.growth-down{color:var(--red)}
+
+/* Modal */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center}
+.overlay.show{display:flex}
+.modal{background:#fff;border-radius:16px;padding:28px;width:500px;max-width:90vw;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:20px}
+.form-group{margin-bottom:14px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px}
+.form-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border 0.15s}
+.form-input:focus{border-color:var(--wb)}
+.form-textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;resize:vertical;height:100px}
+.form-select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:#fff}
+.modal-footer{display:flex;gap:10px;margin-top:20px}
+.btn-save{flex:1;padding:12px;background:var(--wb);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-cancel{padding:12px 20px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:14px;cursor:pointer;font-family:inherit}
+
+.toast{position:fixed;bottom:24px;right:24px;background:#1a1a1a;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:200;opacity:0;transform:translateY(10px);transition:all 0.3s}
+.toast.show{opacity:1;transform:none}
+
+.footer{background:#fff;border-top:1px solid var(--border);padding:16px 28px;display:flex;align-items:center;gap:12px}
+.footer img{width:24px;height:24px;border-radius:4px}
+.footer-text{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/LOGOTIPE-1.png" alt="SeMaVi"/>
+    <span>SeMaVi</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Каталог</div>
+    <a class="nav-item" href="cabinet-products.html"><span class="icon">🍞</span>Товары</a>
+    <a class="nav-item" href="cabinet-stock.html"><span class="icon">📦</span>Склад / FBS</a>
+    <a class="nav-item" href="cabinet-prices.html"><span class="icon">💰</span>Цены и скидки</a>
+    <div class="nav-section">Продажи</div>
+    <a class="nav-item" href="cabinet-orders.html"><span class="icon">📋</span>Заказы</a>
+    <a class="nav-item" href="cabinet-analytics.html"><span class="icon">📊</span>Аналитика</a>
+    <a class="nav-item" href="cabinet-funnel.html"><span class="icon">📈</span>Воронка</a>
+    <div class="nav-section">Маркетинг</div>
+    <a class="nav-item active"><span class="icon">🚀</span>Продвижение</a>
+    <a class="nav-item" href="cabinet-reviews.html"><span class="icon">⭐</span>Отзывы</a>
+    <div class="nav-section">Настройки</div>
+    <a class="nav-item" href="schedule.html"><span class="icon">🗓️</span>Расписание</a>
+    <a class="nav-item" href="/"><span class="icon">🌐</span>Каталог</a>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title">🚀 Продвижение</div>
+    <div class="topbar-right">
+      <button class="topbar-btn primary" onclick="openBroadcastModal()">+ Новая рассылка</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Metrics -->
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Подписчики (Telegram)</div>
+        <div class="metric-value wb" id="metSubs">—</div>
+        <div class="metric-sub">активных в боте</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Reels опубликовано</div>
+        <div class="metric-value pink" id="metReels">1</div>
+        <div class="metric-sub">из 30 по плану</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Рассылок отправлено</div>
+        <div class="metric-value green" id="metBroadcasts">—</div>
+        <div class="metric-sub">за последние 30 дней</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Заказов с рассылки</div>
+        <div class="metric-value gold" id="metBroadcastOrders">—</div>
+        <div class="metric-sub">по промокоду REELS</div>
+      </div>
+    </div>
+
+    <!-- Channel status -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">📊 Аудитория по каналам</div>
+      </div>
+      <div class="ch-status-grid">
+        <div class="ch-status-card">
+          <div class="ch-ico">📱</div>
+          <div class="ch-name">Telegram</div>
+          <div class="ch-metric" id="tgSubs">—</div>
+          <div class="ch-sub">подписчиков</div>
+          <div class="ch-growth growth-up">▲ растёт</div>
+        </div>
+        <div class="ch-status-card">
+          <div class="ch-ico">📸</div>
+          <div class="ch-name">Instagram</div>
+          <div class="ch-metric">—</div>
+          <div class="ch-sub">подписчиков</div>
+          <div class="ch-growth growth-up">▲ Reels</div>
+        </div>
+        <div class="ch-status-card">
+          <div class="ch-ico">💙</div>
+          <div class="ch-name">VK</div>
+          <div class="ch-metric">—</div>
+          <div class="ch-sub">подписчиков</div>
+          <div class="ch-growth">⏳ запуск</div>
+        </div>
+        <div class="ch-status-card">
+          <div class="ch-ico">🔵</div>
+          <div class="ch-name">Ozon</div>
+          <div class="ch-metric">—</div>
+          <div class="ch-sub">просмотров</div>
+          <div class="ch-growth">⏳ скоро</div>
+        </div>
+        <div class="ch-status-card">
+          <div class="ch-ico">🟣</div>
+          <div class="ch-name">WB</div>
+          <div class="ch-metric">—</div>
+          <div class="ch-sub">просмотров</div>
+          <div class="ch-growth">⏳ скоро</div>
+        </div>
+        <div class="ch-status-card">
+          <div class="ch-ico">💬</div>
+          <div class="ch-name">Макс</div>
+          <div class="ch-metric">—</div>
+          <div class="ch-sub">подписчиков</div>
+          <div class="ch-growth">⏳ запуск</div>
+        </div>
+        <div class="ch-status-card">
+          <div class="ch-ico">🌐</div>
+          <div class="ch-name">Сайт</div>
+          <div class="ch-metric" id="siteVisits">—</div>
+          <div class="ch-sub">посетителей</div>
+          <div class="ch-growth growth-up">▲ растёт</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Broadcasts -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">📨 Рассылки</div>
+        <button class="add-btn" onclick="openBroadcastModal()">+ Создать</button>
+      </div>
+      <div class="broadcast-grid" id="broadcastGrid">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+
+    <!-- Reels tracker -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">🎬 Reels — контент-план (30 дней)</div>
+        <button class="add-btn green" onclick="openReelModal()">+ Отметить Reels</button>
+      </div>
+      <div class="reels-grid" id="reelsGrid">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+
+    <!-- Content calendar -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">📅 Контент-календарь</div>
+        <div style="font-size:12px;color:var(--muted)">Текущая неделя</div>
+      </div>
+      <div class="cal-week" id="calDayLabels"></div>
+      <div class="cal-week" id="calDays"></div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <img src="https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/LOGOTIPE-1.png" alt="SeMaVi"/>
+    <div class="footer-text">Продвижение · Масса Матере · контент и рассылки</div>
+  </div>
+</main>
+</div>
+
+<!-- Broadcast modal -->
+<div class="overlay" id="broadcastOverlay">
+  <div class="modal">
+    <h3>Новая рассылка</h3>
+    <div class="form-group">
+      <label class="form-label">Тип рассылки</label>
+      <select class="form-select" id="bcType">
+        <option value="prebake">Накануне выпечки (авто)</option>
+        <option value="promo">Акция / промокод</option>
+        <option value="new">Новый товар</option>
+        <option value="manual">Произвольная</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Текст сообщения</label>
+      <textarea class="form-textarea" id="bcText" placeholder="Завтра выпечка! 🍞 Тартин, Заварной, Бородинский и Сырный. Промокод REELS даёт скидку 10%…"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Канал</label>
+        <select class="form-select" id="bcChannel">
+          <option value="all">Все каналы</option>
+          <option value="tg">Telegram</option>
+          <option value="vk">VK</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Время отправки</label>
+        <input class="form-input" id="bcTime" type="datetime-local"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeBroadcastModal()">Отмена</button>
+      <button class="btn-save" onclick="saveBroadcast()">📨 Создать рассылку</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reel modal -->
+<div class="overlay" id="reelOverlay">
+  <div class="modal">
+    <h3>Отметить Reels</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">День (1–30)</label>
+        <input class="form-input" id="reelDay" type="number" min="1" max="30" placeholder="1"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Дата публикации</label>
+        <input class="form-input" id="reelDate" type="date"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Статус</label>
+      <select class="form-select" id="reelStatus">
+        <option value="published">Опубликован ✅</option>
+        <option value="planned">Запланирован 📅</option>
+        <option value="idea">Идея 💡</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Просмотры</label>
+        <input class="form-input" id="reelViews" type="number" placeholder="0"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Лайки</label>
+        <input class="form-input" id="reelLikes" type="number" placeholder="0"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Заказов с этого Reels</label>
+      <input class="form-input" id="reelOrders" type="number" placeholder="0"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeReelModal()">Отмена</button>
+      <button class="btn-save" onclick="saveReel()">💾 Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbygMB0RJZg8tHOm1ueGdNob4ihBssXRwAK4MGwBW3Z4IT5X4qA0Guo1tqcRkWnqoBjj/exec';
+
+const REELS_PLAN = [
+  {day:1, title:'Дрожжевой хлеб переваривается за 2ч, закваска — за 6', status:'published', views:1240, likes:87, orders:3},
+  {day:2, title:'Почему хлеб на закваске хранится дольше без консервантов', status:'planned'},
+  {day:3, title:'Люди с непереносимостью глютена и закваска', status:'idea'},
+  {day:4, title:'Знакомьтесь — моя 3-летняя закваска', status:'idea'},
+  {day:5, title:'Почему мой хлеб готов за 24ч, а не 2', status:'idea'},
+  {day:6, title:'Гликемический индекс и хлеб на закваске', status:'idea'},
+];
+
+const BROADCASTS = [
+  {type:'Накануне выпечки', title:'Завтра печём! Тартин, Заварной, Бородинский', text:'Заказы принимаем до 22:00. Промокод REELS — скидка 10%.', channel:'Telegram + VK', status:'active', sent:47, opens:38, orders:8},
+  {type:'Брошенная корзина', title:'Вы не завершили заказ 🛒', text:'У вас в корзине остался хлеб. Завершите заказ — выпечка сегодня!', channel:'Telegram', status:'active', sent:12, opens:9, orders:3},
+];
+
+function toast(msg, ok=true) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = ok ? '#1a1a1a' : '#e74c3c';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+async function loadStats() {
+  try {
+    const r = await fetch(API+'?action=stats');
+    const s = await r.json();
+    if(s && !s.error) {
+      if(s.subscribers) {
+        document.getElementById('metSubs').textContent = s.subscribers;
+        document.getElementById('tgSubs').textContent = s.subscribers;
+      }
+      if(s.broadcasts) document.getElementById('metBroadcasts').textContent = s.broadcasts;
+      if(s.promoUsed) document.getElementById('metBroadcastOrders').textContent = s.promoUsed;
+    }
+  } catch(e) {}
+}
+
+function renderBroadcasts() {
+  document.getElementById('broadcastGrid').innerHTML = BROADCASTS.map((b,i) => `
+    <div class="bc-card active">
+      <span class="bc-status bs-active">Активна</span>
+      <div class="bc-type">${b.type}</div>
+      <div class="bc-title">${b.title}</div>
+      <div class="bc-text">${b.text}</div>
+      <div class="bc-meta">
+        <div class="bc-meta-item"><strong>${b.sent}</strong>отправлено</div>
+        <div class="bc-meta-item"><strong>${b.opens}</strong>открыто</div>
+        <div class="bc-meta-item"><strong>${b.orders}</strong>заказов</div>
+        <div class="bc-meta-item"><strong>${b.channel}</strong>канал</div>
+      </div>
+      <div class="bc-actions">
+        <button class="bc-btn" onclick="editBroadcast(${i})">✏️ Изменить</button>
+        <button class="bc-btn danger" onclick="pauseBroadcast(${i})">⏸ Пауза</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderReels() {
+  const published = REELS_PLAN.filter(r=>r.status==='published').length;
+  document.getElementById('metReels').textContent = published;
+
+  document.getElementById('reelsGrid').innerHTML = REELS_PLAN.map((r,i) => {
+    const statusLabel = r.status==='published'?'Опубликован ✅':r.status==='planned'?'Запланирован 📅':'Идея 💡';
+    const statusCls = r.status==='published'?'rs-published':r.status==='planned'?'rs-planned':'rs-idea';
+    return `<div class="reel-card">
+      <div class="reel-day">День ${r.day}</div>
+      <div class="reel-status ${statusCls}">${statusLabel}</div>
+      <div class="reel-title">${r.title}</div>
+      ${r.status==='published' ? `
+        <div class="reel-stats">
+          <div class="reel-stat"><div class="reel-stat-val">${(r.views||0).toLocaleString('ru-RU')}</div><div class="reel-stat-label">просмотры</div></div>
+          <div class="reel-stat"><div class="reel-stat-val">${r.likes||0}</div><div class="reel-stat-label">лайки</div></div>
+          <div class="reel-stat"><div class="reel-stat-val">${Math.round((r.likes||0)/(r.views||1)*100)}%</div><div class="reel-stat-label">ER</div></div>
+        </div>
+        <div class="reel-orders"><span class="reel-orders-val">+${r.orders||0}</span> заказов с этого Reels</div>
+      ` : ''}
+      <button style="margin-top:8px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:#fff;font-size:11px;cursor:pointer" onclick="openReelModal(${r.day})">✏️ Обновить</button>
+    </div>`;
+  }).join('');
+}
+
+function renderCalendar() {
+  const days = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+  document.getElementById('calDayLabels').innerHTML = days.map(d=>`<div class="cal-day-label">${d}</div>`).join('');
+
+  const today = new Date();
+  const dow = today.getDay();
+  const mondayOffset = dow===0 ? -6 : 1-dow;
+  const monday = new Date(today); monday.setDate(today.getDate()+mondayOffset);
+
+  const BAKE_DAYS = [2,4,6]; // Вт,Чт,Сб
+  document.getElementById('calDays').innerHTML = Array.from({length:7},(_,i)=>{
+    const d = new Date(monday); d.setDate(monday.getDate()+i);
+    const isToday = d.toDateString()===today.toDateString();
+    const isBake = BAKE_DAYS.includes(d.getDay());
+    const hasContent = [1,3].includes(i); // Пн, Ср — посты
+    const cls = isToday?'cal-day today':isBake?'cal-day has-content':hasContent?'cal-day planned':'cal-day';
+    return `<div class="${cls}">
+      <div class="cal-day-num">${d.getDate()}</div>
+      ${isBake?`<div><span class="cal-content-dot dot-reels"></span><div class="cal-content-label">Reels + выпечка</div></div>`:''}
+      ${hasContent&&!isBake?`<div><span class="cal-content-dot dot-post"></span><div class="cal-content-label">Пост</div></div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// Broadcast modal
+function openBroadcastModal() { document.getElementById('broadcastOverlay').classList.add('show'); }
+function closeBroadcastModal() { document.getElementById('broadcastOverlay').classList.remove('show'); }
+function saveBroadcast() {
+  const type = document.getElementById('bcType').options[document.getElementById('bcType').selectedIndex].text;
+  const text = document.getElementById('bcText').value;
+  const channel = document.getElementById('bcChannel').options[document.getElementById('bcChannel').selectedIndex].text;
+  if(!text) { toast('Введите текст рассылки', false); return; }
+  BROADCASTS.unshift({type, title:text.slice(0,50)+'…', text, channel, status:'active', sent:0, opens:0, orders:0});
+  renderBroadcasts();
+  closeBroadcastModal();
+  toast('✅ Рассылка создана');
+}
+function editBroadcast(i) { toast('Редактирование рассылки — скоро'); }
+function pauseBroadcast(i) { BROADCASTS[i].status='paused'; renderBroadcasts(); toast('⏸ Рассылка на паузе'); }
+
+// Reel modal
+function openReelModal(day) {
+  document.getElementById('reelDay').value = day||'';
+  const reel = REELS_PLAN.find(r=>r.day===day);
+  document.getElementById('reelStatus').value = reel?.status||'idea';
+  document.getElementById('reelViews').value = reel?.views||'';
+  document.getElementById('reelLikes').value = reel?.likes||'';
+  document.getElementById('reelOrders').value = reel?.orders||'';
+  document.getElementById('reelOverlay').classList.add('show');
+}
+function closeReelModal() { document.getElementById('reelOverlay').classList.remove('show'); }
+function saveReel() {
+  const day = parseInt(document.getElementById('reelDay').value);
+  const status = document.getElementById('reelStatus').value;
+  const views = parseInt(document.getElementById('reelViews').value)||0;
+  const likes = parseInt(document.getElementById('reelLikes').value)||0;
+  const orders = parseInt(document.getElementById('reelOrders').value)||0;
+  if(!day) { toast('Укажите день', false); return; }
+  const idx = REELS_PLAN.findIndex(r=>r.day===day);
+  if(idx>=0) {
+    REELS_PLAN[idx] = {...REELS_PLAN[idx], status, views, likes, orders};
+  } else {
+    REELS_PLAN.push({day, title:'День '+day, status, views, likes, orders});
+    REELS_PLAN.sort((a,b)=>a.day-b.day);
+  }
+  renderReels();
+  closeReelModal();
+  toast('✅ Reels обновлён');
+}
+
+loadStats();
+renderBroadcasts();
+renderReels();
+renderCalendar();
+</script>
+</body>
+</html>
