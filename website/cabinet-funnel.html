@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SeMaVi — Воронка</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f5f3f0;--card:#fff;--border:#e0ddd8;--text:#1a1a1a;--muted:#7a7a7a;
+  --wb:#a332ff;--wb-light:#f0e4ff;--gold:#d4a843;--gold-light:#fdf5e3;
+  --green:#2aa05c;--green-light:#e6f7ee;--red:#e74c3c;--red-light:#fdecea;
+  --orange:#f59e0b;--orange-light:#fffbeb;--blue:#3b82f6;--blue-light:#eff6ff;
+  --sidebar-bg:#2d1854;--sidebar-text:#e0d6f0;--sidebar-active:#a332ff
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+
+.sidebar{background:var(--sidebar-bg);padding:20px 0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-logo{padding:12px 20px 24px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.sidebar-logo img{width:36px;height:36px;border-radius:8px}
+.sidebar-logo span{color:#fff;font-weight:700;font-size:16px;letter-spacing:1px}
+.sidebar-nav{padding:16px 0}
+.nav-section{padding:6px 20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.3);margin-top:16px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--sidebar-text);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;border-left:3px solid transparent;text-decoration:none}
+.nav-item:hover,.nav-item.active{background:rgba(163,50,255,0.12);color:#fff;border-left-color:var(--sidebar-active)}
+.nav-item .icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+
+.main{padding:0}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.topbar-title{font-size:18px;font-weight:700}
+.topbar-right{display:flex;gap:10px;align-items:center}
+.period-select{padding:8px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:#fff}
+.topbar-btn{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:13px;font-weight:600;cursor:pointer}
+.topbar-btn:hover{border-color:var(--wb)}
+
+.content{padding:24px 28px}
+
+/* Metrics */
+.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:28px}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.metric-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.metric-value{font-size:24px;font-weight:800;margin-top:6px}
+.metric-value.wb{color:var(--wb)}
+.metric-value.green{color:var(--green)}
+.metric-value.gold{color:var(--gold)}
+.metric-value.red{color:var(--red)}
+.metric-value.blue{color:var(--blue)}
+.metric-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.metric-delta{font-size:11px;margin-top:4px;font-weight:600}
+.delta-up{color:var(--green)}
+.delta-down{color:var(--red)}
+
+/* Main funnel */
+.funnel-section{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px}
+.section-title{font-size:15px;font-weight:700;margin-bottom:20px}
+
+.funnel{display:flex;flex-direction:column;gap:0}
+.funnel-step{display:grid;grid-template-columns:160px 1fr 120px;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid var(--border)}
+.funnel-step:last-child{border:none}
+.step-label{font-size:13px;font-weight:600}
+.step-channel{font-size:11px;color:var(--muted);margin-top:2px}
+.step-bar-wrap{position:relative;height:32px;background:var(--bg);border-radius:6px;overflow:hidden}
+.step-bar{height:100%;border-radius:6px;display:flex;align-items:center;padding:0 12px;transition:width 0.6s ease}
+.step-bar span{font-size:12px;font-weight:700;color:#fff;white-space:nowrap}
+.step-counts{text-align:right}
+.step-count{font-size:16px;font-weight:800}
+.step-conv{font-size:11px;color:var(--muted);margin-top:2px}
+.step-drop{font-size:11px;color:var(--red);margin-top:2px}
+
+.funnel-arrow{text-align:center;color:var(--muted);font-size:12px;padding:4px 0;display:flex;align-items:center;justify-content:center;gap:8px}
+.funnel-arrow::before,.funnel-arrow::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* Channel funnels */
+.ch-funnels{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+@media(max-width:900px){.ch-funnels{grid-template-columns:1fr}}
+.ch-funnel-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.ch-funnel-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.ch-funnel-ico{font-size:22px}
+.ch-funnel-name{font-size:14px;font-weight:700}
+.ch-funnel-conv{margin-left:auto;font-size:13px;font-weight:800;color:var(--green)}
+.ch-step{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
+.ch-step:last-child{border:none}
+.ch-step-label{color:var(--muted)}
+.ch-step-val{font-weight:700}
+.ch-step-pct{font-size:10px;color:var(--muted);margin-left:4px}
+.ch-bar-mini{width:100%;height:4px;background:var(--bg);border-radius:2px;margin-top:4px;overflow:hidden}
+.ch-bar-fill{height:100%;border-radius:2px}
+
+/* Lost orders */
+.lost-section{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px}
+.lost-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+.lost-card{background:var(--bg);border-radius:10px;padding:14px;text-align:center}
+.lost-num{font-size:28px;font-weight:800;color:var(--red)}
+.lost-label{font-size:11px;color:var(--muted);margin-top:4px}
+.lost-action{font-size:11px;color:var(--wb);margin-top:6px;cursor:pointer;font-weight:600}
+
+/* SKU funnel */
+.sku-table{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.sku-table-header{padding:16px 20px;border-bottom:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);background:var(--bg);border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px}
+tr:last-child td{border:none}
+tr:hover td{background:#faf8f5}
+
+.mini-bar{width:80px;height:6px;background:var(--bg);border-radius:3px;display:inline-block;vertical-align:middle;overflow:hidden}
+.mini-fill{height:100%;border-radius:3px;background:var(--wb)}
+
+.footer{background:#fff;border-top:1px solid var(--border);padding:16px 28px;display:flex;align-items:center;gap:12px}
+.footer img{width:24px;height:24px;border-radius:4px}
+.footer-text{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/LOGOTIPE-1.png" alt="SeMaVi"/>
+    <span>SeMaVi</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Каталог</div>
+    <a class="nav-item" href="cabinet-products.html"><span class="icon">🍞</span>Товары</a>
+    <a class="nav-item" href="cabinet-stock.html"><span class="icon">📦</span>Склад / FBS</a>
+    <a class="nav-item" href="cabinet-prices.html"><span class="icon">💰</span>Цены и скидки</a>
+    <div class="nav-section">Продажи</div>
+    <a class="nav-item" href="cabinet-orders.html"><span class="icon">📋</span>Заказы</a>
+    <a class="nav-item" href="cabinet-analytics.html"><span class="icon">📊</span>Аналитика</a>
+    <a class="nav-item active"><span class="icon">📈</span>Воронка</a>
+    <div class="nav-section">Маркетинг</div>
+    <a class="nav-item" href="cabinet-promo.html"><span class="icon">🚀</span>Продвижение</a>
+    <a class="nav-item" href="cabinet-reviews.html"><span class="icon">⭐</span>Отзывы</a>
+    <div class="nav-section">Настройки</div>
+    <a class="nav-item" href="schedule.html"><span class="icon">🗓️</span>Расписание</a>
+    <a class="nav-item" href="/"><span class="icon">🌐</span>Каталог</a>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title">📈 Воронка продаж</div>
+    <div class="topbar-right">
+      <select class="period-select" onchange="renderAll()">
+        <option value="7">7 дней</option>
+        <option value="30" selected>30 дней</option>
+        <option value="90">90 дней</option>
+      </select>
+      <button class="topbar-btn" onclick="loadData()">↻ Обновить</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Metrics -->
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Охват</div>
+        <div class="metric-value wb" id="metReach">2 840</div>
+        <div class="metric-sub">уникальных контактов</div>
+        <div class="metric-delta delta-up">▲ +18%</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Вовлечённость</div>
+        <div class="metric-value blue" id="metEngage">684</div>
+        <div class="metric-sub">перешли на сайт / в бот</div>
+        <div class="metric-delta delta-up">▲ +12%</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Добавили в корзину</div>
+        <div class="metric-value gold" id="metCart">187</div>
+        <div class="metric-sub">уникальных сессий</div>
+        <div class="metric-delta delta-down">▼ −3%</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Заказов</div>
+        <div class="metric-value green" id="metOrders">47</div>
+        <div class="metric-sub">из Google Sheets (live)</div>
+        <div class="metric-delta delta-up">▲ +23%</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Конверсия</div>
+        <div class="metric-value" id="metConv" style="color:var(--wb)">1.6%</div>
+        <div class="metric-sub">охват → заказ</div>
+        <div class="metric-delta delta-up">▲ +0.4%</div>
+      </div>
+    </div>
+
+    <!-- Main funnel -->
+    <div class="funnel-section">
+      <div class="section-title">Сводная воронка — все каналы</div>
+      <div class="funnel" id="mainFunnel">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+
+    <!-- Channel funnels -->
+    <div style="font-size:15px;font-weight:700;margin-bottom:14px">Воронка по каналам</div>
+    <div class="ch-funnels" id="chFunnels">
+      <!-- rendered by JS -->
+    </div>
+
+    <!-- Lost orders -->
+    <div class="lost-section">
+      <div class="section-title">🚨 Потери в воронке</div>
+      <div class="lost-grid" id="lostGrid">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+
+    <!-- SKU funnel -->
+    <div class="sku-table">
+      <div class="sku-table-header">
+        <div style="font-size:15px;font-weight:700">Воронка по SKU</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Товар</th>
+            <th>Просмотры</th>
+            <th>В корзину</th>
+            <th>Заказано</th>
+            <th>Конверсия</th>
+            <th>Выручка</th>
+          </tr>
+        </thead>
+        <tbody id="skuBody">
+          <!-- rendered by JS -->
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <img src="https://raw.githubusercontent.com/kuzin4u/Sourdough-Bakery/main/assets/LOGOTIPE-1.png" alt="SeMaVi"/>
+    <div class="footer-text">Воронка продаж · Масса Матере · аналитика из Google Sheets</div>
+  </div>
+</main>
+</div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbygMB0RJZg8tHOm1ueGdNob4ihBssXRwAK4MGwBW3Z4IT5X4qA0Guo1tqcRkWnqoBjj/exec';
+
+// Данные воронки (частично из Sheets, частично расчётные)
+const FUNNEL_STEPS = [
+  {label:'Охват (Reels + посты)', channel:'Instagram, VK', count:2840, color:'#a332ff'},
+  {label:'Переход в профиль / бот', channel:'Taplink, прямые ссылки', count:684, color:'#3b82f6'},
+  {label:'Открыли каталог', channel:'Сайт + Telegram + VK', count:412, color:'#d4a843'},
+  {label:'Добавили в корзину', channel:'Сайт + Telegram', count:187, color:'#f59e0b'},
+  {label:'Начали оформление', channel:'Магазин + Telegram', count:89, color:'#e74c3c'},
+  {label:'Оформили заказ', channel:'Все каналы', count:47, color:'#2aa05c'},
+];
+
+const CH_FUNNELS = [
+  {ico:'📱', name:'Telegram', conv:'8.2%', color:'#3b82f6',
+   steps:[{l:'Подписчики',v:380},{l:'Открыли меню',v:210},{l:'В корзину',v:95},{l:'Заказали',v:31}]},
+  {ico:'🌐', name:'Сайт / Магазин', conv:'5.1%', color:'#2aa05c',
+   steps:[{l:'Посетители',v:290},{l:'Каталог',v:180},{l:'В корзину',v:62},{l:'Заказали',v:15}]},
+  {ico:'📸', name:'Instagram', conv:'0.4%', color:'#c1306c',
+   steps:[{l:'Охват Reels',v:2400},{l:'Клик в профиль',v:320},{l:'Taplink переход',v:84},{l:'Заказали',v:9}]},
+];
+
+const SKU_DATA = [
+  {id:'wheat', name:'Тартин', emoji:'🍞', views:310, cart:82, orders:21, price:380},
+  {id:'rye', name:'Заварной ржано-пшеничный', emoji:'🫓', views:240, cart:61, orders:14, price:425},
+  {id:'seeds', name:'Бородинский', emoji:'🍞', views:195, cart:48, orders:8, price:340},
+  {id:'wholegrain', name:'Тартин сырный', emoji:'🧀', views:178, cart:34, orders:4, price:468},
+];
+
+const LOST = [
+  {num:140, label:'Бросили корзину', action:'→ Настроить напоминание'},
+  {num:98, label:'Ушли с каталога', action:'→ Улучшить карточки'},
+  {num:42, label:'Не завершили заказ', action:'→ Упростить форму'},
+  {num:272, label:'Не вернулись', action:'→ Запустить рассылку'},
+];
+
+function fmtNum(n) { return Number(n).toLocaleString('ru-RU'); }
+function fmtSum(n) { return Number(n).toLocaleString('ru-RU')+' ₽'; }
+
+function renderMainFunnel() {
+  const max = FUNNEL_STEPS[0].count;
+  document.getElementById('mainFunnel').innerHTML = FUNNEL_STEPS.map((s,i) => {
+    const pct = Math.round((s.count/max)*100);
+    const conv = i>0 ? Math.round((s.count/FUNNEL_STEPS[i-1].count)*100)+'%' : '100%';
+    const drop = i>0 ? fmtNum(FUNNEL_STEPS[i-1].count - s.count)+' потеряно' : '';
+    return `
+      ${i>0 ? `<div class="funnel-arrow">${drop} (−${100-parseInt(conv)}%)</div>` : ''}
+      <div class="funnel-step">
+        <div>
+          <div class="step-label">${s.label}</div>
+          <div class="step-channel">${s.channel}</div>
+        </div>
+        <div class="step-bar-wrap">
+          <div class="step-bar" style="width:${pct}%;background:${s.color}">
+            <span>${pct}%</span>
+          </div>
+        </div>
+        <div class="step-counts">
+          <div class="step-count">${fmtNum(s.count)}</div>
+          <div class="step-conv">конв. ${conv}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderChFunnels() {
+  document.getElementById('chFunnels').innerHTML = CH_FUNNELS.map(ch => {
+    const max = ch.steps[0].v;
+    return `<div class="ch-funnel-card">
+      <div class="ch-funnel-header">
+        <div class="ch-funnel-ico">${ch.ico}</div>
+        <div class="ch-funnel-name">${ch.name}</div>
+        <div class="ch-funnel-conv">${ch.conv}</div>
+      </div>
+      ${ch.steps.map((s,i) => {
+        const pct = Math.round((s.v/max)*100);
+        return `<div class="ch-step">
+          <div>
+            <div class="ch-step-label">${s.l}</div>
+            <div class="ch-bar-mini"><div class="ch-bar-fill" style="width:${pct}%;background:${ch.color}"></div></div>
+          </div>
+          <div><span class="ch-step-val">${fmtNum(s.v)}</span><span class="ch-step-pct">${pct}%</span></div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function renderLost() {
+  document.getElementById('lostGrid').innerHTML = LOST.map(l => `
+    <div class="lost-card">
+      <div class="lost-num">${l.num}</div>
+      <div class="lost-label">${l.label}</div>
+      <div class="lost-action">${l.action}</div>
+    </div>`).join('');
+}
+
+function renderSkuTable() {
+  const maxOrders = Math.max(...SKU_DATA.map(s=>s.orders));
+  document.getElementById('skuBody').innerHTML = SKU_DATA.map(s => {
+    const conv = Math.round((s.orders/s.views)*100);
+    const rev = s.orders * s.price;
+    const barPct = Math.round((s.orders/maxOrders)*100);
+    return `<tr>
+      <td><strong>${s.emoji} ${s.name}</strong></td>
+      <td>${fmtNum(s.views)}</td>
+      <td>${fmtNum(s.cart)} <span style="font-size:11px;color:var(--muted)">(${Math.round(s.cart/s.views*100)}%)</span></td>
+      <td>${s.orders}</td>
+      <td>
+        <span class="mini-bar"><span class="mini-fill" style="width:${barPct}%"></span></span>
+        <strong style="margin-left:6px">${conv}%</strong>
+      </td>
+      <td><strong>${fmtSum(rev)}</strong></td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadData() {
+  try {
+    const r = await fetch(API+'?action=stats');
+    const s = await r.json();
+    if(s && !s.error) {
+      if(s.total) document.getElementById('metOrders').textContent = s.total;
+      if(s.weekOrders) FUNNEL_STEPS[5].count = s.weekOrders;
+      renderMainFunnel();
+    }
+  } catch(e) { console.warn('Stats load:', e); }
+}
+
+function renderAll() {
+  renderMainFunnel();
+  renderChFunnels();
+  renderLost();
+  renderSkuTable();
+}
+
+renderAll();
+loadData();
+</script>
+</body>
+</html>
