@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Расписание выпечки — Масса Матере</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f5f3f0;--card:#fff;--border:#e0ddd8;--text:#1a1a1a;--muted:#7a7a7a;
+  --sidebar:#2d1854;--gold:#d4a843;--gold-light:#fdf5e3;
+  --green:#2aa05c;--green-light:#e6f7ee;
+  --red:#e74c3c;--red-light:#fdecea;
+  --blue:#3b82f6;--blue-light:#eff6ff;
+  --orange:#f59e0b;--orange-light:#fffbeb;
+  --radius:10px
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;display:flex}
+
+/* Sidebar */
+.sidebar{width:200px;background:var(--sidebar);padding:20px 0;flex-shrink:0;min-height:100vh}
+.sidebar-logo{padding:0 16px 20px;font-size:16px;font-weight:700;color:#e0d6f0;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-logo small{display:block;font-size:11px;opacity:.5;font-weight:400;margin-top:2px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;color:rgba(255,255,255,.65);text-decoration:none;font-size:13px;transition:all .15s;cursor:pointer}
+.nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.nav-item.active{background:rgba(212,168,67,.15);color:var(--gold);border-left:3px solid var(--gold)}
+.nav-item .icon{font-size:16px;width:20px;text-align:center}
+
+/* Main */
+.main{flex:1;padding:24px;overflow:auto}
+.page-title{font-size:20px;font-weight:700;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:20px}
+
+/* Stats row */
+.stats-row{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;min-width:140px}
+.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.stat-value{font-size:22px;font-weight:700}
+.stat-value.green{color:var(--green)}
+.stat-value.red{color:var(--red)}
+.stat-value.gold{color:var(--gold)}
+
+/* Calendar */
+.calendar-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.cal-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.cal-title{font-size:16px;font-weight:600;flex:1}
+.cal-nav{background:none;border:1px solid var(--border);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-family:inherit}
+.cal-nav:hover{background:var(--bg)}
+
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-dow{text-align:center;font-size:11px;font-weight:600;color:var(--muted);padding:4px 0;text-transform:uppercase}
+.cal-day{aspect-ratio:1;border-radius:8px;border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;position:relative;padding:4px}
+.cal-day:hover{border-color:var(--gold);box-shadow:0 2px 8px rgba(212,168,67,.2)}
+.cal-day.empty{border-color:transparent;cursor:default}
+.cal-day.other-month{opacity:.3}
+.cal-day.today{border-color:var(--blue);background:var(--blue-light)}
+.cal-day.bake-on{background:var(--green-light);border-color:var(--green)}
+.cal-day.bake-off{background:var(--red-light);border-color:var(--red)}
+.cal-day.bake-extra{background:var(--orange-light);border-color:var(--orange)}
+.cal-day.past{opacity:.5;cursor:default;pointer-events:none}
+.cal-day-num{font-size:13px;font-weight:600}
+.cal-day-ico{font-size:14px;line-height:1}
+.cal-day-dot{width:6px;height:6px;border-radius:50%;margin-top:2px}
+.dot-on{background:var(--green)}
+.dot-off{background:var(--red)}
+.dot-extra{background:var(--orange)}
+
+/* Legend */
+.legend{display:flex;gap:16px;margin-top:12px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.legend-dot{width:10px;height:10px;border-radius:3px}
+
+/* Day modal */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center}
+.overlay.show{display:flex}
+.modal{background:var(--card);border-radius:14px;padding:24px;width:360px;max-width:90vw}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:4px}
+.modal-date{font-size:13px;color:var(--muted);margin-bottom:16px}
+.status-btns{display:flex;gap:8px;margin-bottom:14px}
+.status-btn{flex:1;padding:10px 8px;border-radius:8px;border:2px solid var(--border);background:#fff;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;transition:all .15s;text-align:center}
+.status-btn:hover{transform:translateY(-1px)}
+.status-btn.sel-on{background:var(--green-light);border-color:var(--green);color:var(--green)}
+.status-btn.sel-off{background:var(--red-light);border-color:var(--red);color:var(--red)}
+.status-btn.sel-extra{background:var(--orange-light);border-color:var(--orange);color:var(--orange)}
+.modal label{display:block;font-size:12px;font-weight:500;margin-bottom:4px;color:var(--muted)}
+.modal textarea{width:100%;border:1px solid var(--border);border-radius:6px;padding:10px;font-size:13px;font-family:inherit;resize:none;height:70px;margin-bottom:14px}
+.modal textarea:focus{outline:none;border-color:var(--gold)}
+.modal-footer{display:flex;gap:8px}
+.btn-save{flex:1;padding:10px;background:var(--gold);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-cancel{padding:10px 16px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:14px;cursor:pointer;font-family:inherit}
+
+/* Upcoming list */
+.upcoming{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-top:16px}
+.upcoming h3{font-size:15px;font-weight:600;margin-bottom:12px}
+.upcoming-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.upcoming-item:last-child{border:none}
+.upcoming-date{font-weight:600;font-size:13px;min-width:90px}
+.upcoming-status{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.status-on{background:var(--green-light);color:var(--green)}
+.status-off{background:var(--red-light);color:var(--red)}
+.status-extra{background:var(--orange-light);color:var(--orange)}
+.upcoming-comment{font-size:12px;color:var(--muted);flex:1}
+.btn-edit-small{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;font-family:inherit}
+.btn-edit-small:hover{background:var(--bg)}
+
+/* Loading */
+.loading{text-align:center;padding:40px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo">Масса Матере<small>Управление</small></div>
+  <a class="nav-item" href="cabinet-orders.html"><span class="icon">📋</span>Заказы</a>
+  <a class="nav-item" href="cabinet-analytics.html"><span class="icon">📊</span>Аналитика</a>
+  <a class="nav-item active"><span class="icon">🗓️</span>Расписание</a>
+  <a class="nav-item" href="/"><span class="icon">🏪</span>Каталог</a>
+</div>
+
+<div class="main">
+  <div class="page-title">🗓️ Расписание выпечки</div>
+  <div class="page-sub">Управляйте днями выпечки — изменения отражаются в каталоге и рассылке</div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-label">Выпечек в месяц</div><div class="stat-value green" id="statTotal">—</div></div>
+    <div class="stat-card"><div class="stat-label">Отменено</div><div class="stat-value red" id="statOff">0</div></div>
+    <div class="stat-card"><div class="stat-label">Внеплановых</div><div class="stat-value gold" id="statExtra">0</div></div>
+    <div class="stat-card"><div class="stat-label">Следующая выпечка</div><div class="stat-value" id="statNext" style="font-size:14px">—</div></div>
+  </div>
+
+  <!-- Calendar -->
+  <div class="calendar-wrap">
+    <div class="cal-header">
+      <button class="cal-nav" onclick="prevMonth()">← Пред</button>
+      <div class="cal-title" id="calTitle"></div>
+      <button class="cal-nav" onclick="nextMonth()">След →</button>
+    </div>
+    <div class="cal-grid" id="calGrid">
+      <div class="loading">Загружаю расписание…</div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Плановая выпечка</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Отменена</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>Внеплановая</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Сегодня</div>
+    </div>
+  </div>
+
+  <!-- Upcoming changes -->
+  <div class="upcoming">
+    <h3>Изменения в расписании</h3>
+    <div id="upcomingList"><div class="loading">Загружаю…</div></div>
+  </div>
+</div>
+
+<!-- Day modal -->
+<div class="overlay" id="dayOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">День выпечки</h3>
+    <div class="modal-date" id="modalDate"></div>
+    <div class="status-btns">
+      <button class="status-btn" id="btnOn" onclick="selectStatus('on')">✅ Выпечка</button>
+      <button class="status-btn" id="btnOff" onclick="selectStatus('off')">❌ Отмена</button>
+      <button class="status-btn" id="btnExtra" onclick="selectStatus('extra')">➕ Доп.</button>
+    </div>
+    <label>Комментарий (причина отмены, особенности)</label>
+    <textarea id="modalComment" placeholder="Например: праздник, нет ингредиентов..."></textarea>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Отмена</button>
+      <button class="btn-save" onclick="saveDay()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbygMB0RJZg8tHOm1ueGdNob4ihBssXRwAK4MGwBW3Z4IT5X4qA0Guo1tqcRkWnqoBjj/exec';
+const BAKE_DAYS = [2, 4, 6]; // Вт, Чт, Сб (JS getDay)
+const MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const DAYS_SHORT = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+const DAYS_FULL = ['воскресенье','понедельник','вторник','среду','четверг','пятницу','субботу'];
+const STATUS_LABELS = {on:'Плановая', off:'Отменена', extra:'Внеплановая'};
+
+let schedule = {}; // {YYYY-MM-DD: {status, comment}}
+let curYear = new Date().getFullYear();
+let curMonth = new Date().getMonth();
+let selectedDate = null;
+let selectedStatus = 'on';
+
+function fmtISO(d) {
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+function isBakeDay(d) { return BAKE_DAYS.includes(d.getDay()); }
+
+function getEffectiveStatus(dateISO, d) {
+  if (schedule[dateISO]) return schedule[dateISO].status;
+  return isBakeDay(d) ? 'on' : null;
+}
+
+// ─── Load ───
+async function loadSchedule() {
+  if (!API || API === ('__REVIEWS_API'+'_URL__')) return;
+  try {
+    const r = await fetch(API + '?action=schedule&days=90');
+    const data = await r.json();
+    if (Array.isArray(data)) {
+      schedule = {};
+      data.forEach(item => { schedule[item.date] = {status: item.status, comment: item.comment}; });
+    }
+  } catch(e) { console.warn('Schedule load error:', e); }
+  renderCalendar();
+  renderUpcoming();
+  renderStats();
+}
+
+// ─── Calendar ───
+function renderCalendar() {
+  document.getElementById('calTitle').textContent = MONTHS[curMonth] + ' ' + curYear;
+  const grid = document.getElementById('calGrid');
+  const today = fmtISO(new Date());
+
+  // Day-of-week headers (Пн first)
+  let html = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(d =>
+    `<div class="cal-dow">${d}</div>`
+  ).join('');
+
+  // First day of month
+  const first = new Date(curYear, curMonth, 1);
+  // Adjust: JS 0=Sun, we want 0=Mon
+  let startDow = first.getDay(); // 0=Sun
+  if (startDow === 0) startDow = 6; else startDow--;
+
+  // Empty cells before
+  for (let i = 0; i < startDow; i++) html += '<div class="cal-day empty"></div>';
+
+  const daysInMonth = new Date(curYear, curMonth + 1, 0).getDate();
+  const now = new Date(); now.setHours(0,0,0,0);
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(curYear, curMonth, d);
+    const iso = fmtISO(date);
+    const isToday = iso === today;
+    const isPast = date < now;
+    const eff = getEffectiveStatus(iso, date);
+    const hasOverride = !!schedule[iso];
+
+    let cls = 'cal-day';
+    if (isToday) cls += ' today';
+    if (isPast) cls += ' past';
+    if (eff === 'on' && !isPast) cls += ' bake-on';
+    if (eff === 'off') cls += ' bake-off';
+    if (eff === 'extra') cls += ' bake-extra';
+
+    const ico = eff === 'on' ? '🍞' : eff === 'off' ? '❌' : eff === 'extra' ? '⭐' : '';
+    const dot = eff ? `<div class="cal-day-dot dot-${eff}"></div>` : '';
+
+    html += `<div class="${cls}" onclick="openDay('${iso}',${d})">
+      <div class="cal-day-num">${d}</div>
+      ${eff ? `<div class="cal-day-ico">${ico}</div>` : ''}
+    </div>`;
+  }
+
+  grid.innerHTML = html;
+}
+
+function prevMonth() {
+  if (curMonth === 0) { curMonth = 11; curYear--; } else curMonth--;
+  renderCalendar();
+}
+function nextMonth() {
+  if (curMonth === 11) { curMonth = 0; curYear++; } else curMonth++;
+  renderCalendar();
+}
+
+// ─── Stats ───
+function renderStats() {
+  const now = new Date(); now.setHours(0,0,0,0);
+  const monthEnd = new Date(curYear, curMonth + 1, 0);
+  const monthStart = new Date(curYear, curMonth, 1);
+
+  let total = 0, off = 0, extra = 0, nextBake = null;
+
+  for (let d = new Date(now > monthStart ? now : monthStart); d <= monthEnd; d.setDate(d.getDate()+1)) {
+    const iso = fmtISO(d);
+    const eff = getEffectiveStatus(iso, new Date(d));
+    if (eff === 'on') { total++; if (!nextBake) nextBake = new Date(d); }
+    if (eff === 'off') off++;
+    if (eff === 'extra') { total++; extra++; if (!nextBake) nextBake = new Date(d); }
+  }
+
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statOff').textContent = off;
+  document.getElementById('statExtra').textContent = extra;
+  document.getElementById('statNext').textContent = nextBake
+    ? DAYS_FULL[nextBake.getDay()] + ', ' + nextBake.getDate() + '.' + String(nextBake.getMonth()+1).padStart(2,'0')
+    : 'нет';
+}
+
+// ─── Upcoming changes ───
+function renderUpcoming() {
+  const el = document.getElementById('upcomingList');
+  const entries = Object.entries(schedule)
+    .filter(([d]) => d >= fmtISO(new Date()))
+    .sort(([a],[b]) => a.localeCompare(b))
+    .slice(0, 10);
+
+  if (!entries.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0">Нет изменений — используется стандартное расписание (вт/чт/сб)</div>';
+    return;
+  }
+
+  el.innerHTML = entries.map(([iso, s]) => {
+    const d = new Date(iso);
+    const dateStr = DAYS_FULL[d.getDay()] + ', ' + d.getDate() + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + d.getFullYear();
+    return `<div class="upcoming-item">
+      <div class="upcoming-date">${dateStr}</div>
+      <span class="upcoming-status status-${s.status}">${STATUS_LABELS[s.status]}</span>
+      <div class="upcoming-comment">${s.comment || '—'}</div>
+      <button class="btn-edit-small" onclick="openDay('${iso}')">✏️</button>
+    </div>`;
+  }).join('');
+}
+
+// ─── Modal ───
+function openDay(iso, dayNum) {
+  const d = new Date(iso);
+  const now = new Date(); now.setHours(0,0,0,0);
+  if (d < now) return;
+
+  selectedDate = iso;
+  const existing = schedule[iso];
+  selectedStatus = existing ? existing.status : (isBakeDay(d) ? 'on' : 'extra');
+
+  const dayName = DAYS_FULL[d.getDay()];
+  document.getElementById('modalTitle').textContent = dayName.charAt(0).toUpperCase() + dayName.slice(1) + ', ' + d.getDate() + ' ' + MONTHS[d.getMonth()].toLowerCase();
+  document.getElementById('modalDate').textContent = isBakeDay(d) ? 'Плановый день выпечки' : 'Не плановый день — добавить внеплановую?';
+  document.getElementById('modalComment').value = existing ? existing.comment : '';
+  updateStatusBtns();
+  document.getElementById('dayOverlay').classList.add('show');
+}
+
+function selectStatus(s) {
+  selectedStatus = s;
+  updateStatusBtns();
+}
+
+function updateStatusBtns() {
+  document.getElementById('btnOn').className = 'status-btn' + (selectedStatus==='on'?' sel-on':'');
+  document.getElementById('btnOff').className = 'status-btn' + (selectedStatus==='off'?' sel-off':'');
+  document.getElementById('btnExtra').className = 'status-btn' + (selectedStatus==='extra'?' sel-extra':'');
+}
+
+function closeModal() {
+  document.getElementById('dayOverlay').classList.remove('show');
+  selectedDate = null;
+}
+
+async function saveDay() {
+  if (!selectedDate) return;
+  const comment = document.getElementById('modalComment').value.trim();
+  const d = new Date(selectedDate);
+
+  // Если плановый день и статус 'on' без комментария — удаляем переопределение
+  const isDefault = isBakeDay(d) && selectedStatus === 'on' && !comment;
+  if (isDefault) {
+    delete schedule[selectedDate];
+  } else {
+    schedule[selectedDate] = {status: selectedStatus, comment};
+  }
+
+  closeModal();
+  renderCalendar();
+  renderUpcoming();
+  renderStats();
+
+  // Сохраняем в Sheets
+  if (API && API !== ('__REVIEWS_API'+'_URL__')) {
+    try {
+      await fetch(API, {
+        method: 'POST',
+        headers: {'Content-Type': 'text/plain;charset=utf-8'},
+        body: JSON.stringify({
+          _type: 'schedule',
+          date: selectedDate,
+          status: isDefault ? 'on' : selectedStatus,
+          comment: isDefault ? '' : comment,
+        })
+      });
+    } catch(e) { console.warn('Save error:', e); }
+  }
+}
+
+// ─── Init ───
+loadSchedule();
+</script>
+</body>
+</html>
