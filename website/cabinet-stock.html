@@ -150,6 +150,7 @@ tr:hover td{background:#faf8f5}
     <div class="topbar-title">📦 Склад / FBS</div>
     <div class="topbar-right">
       <button class="topbar-btn" onclick="loadAll()">↻ Обновить</button>
+      <button class="topbar-btn" onclick="generateBakeTask()" style="background:var(--green);color:#fff;border-color:var(--green)">📋 Сформировать задание</button>
       <button class="topbar-btn primary" onclick="saveBakePlan()">💾 Сохранить план</button>
     </div>
   </div>
@@ -298,6 +299,57 @@ function nextBakeDate() {
     }
   }
   return 'скоро';
+}
+
+async function generateBakeTask() {
+  toast('⏳ Формирую задание из заказов…');
+  try {
+    const r = await fetch(API + '?action=baketask');
+    const data = await r.json();
+    if (data.error) throw new Error(data.error);
+
+    // Обновляем план выпечки из реальных заказов
+    data.skus.forEach(sku => {
+      const key = Object.keys(bakePlan).find(k =>
+        sku.name.toLowerCase().includes(k) || k.includes(sku.name.toLowerCase().split(' ')[0])
+      );
+      // Находим продукт по имени
+      const p = products.find(p => sku.name.toLowerCase().includes(p.name.toLowerCase().split(' ')[0]));
+      if (p) {
+        bakePlan[p.id] = sku.count;
+        const el = document.getElementById('plan_'+p.id);
+        if (el) el.textContent = sku.count;
+      }
+    });
+
+    // Показываем результат
+    const total = data.totalLoaves || 0;
+    const revenue = (data.totalRevenue || 0).toLocaleString('ru-RU');
+    document.getElementById('metPlanned').textContent = total;
+
+    // Вставляем сводку в таблицу остатков
+    const taskHtml = `
+      <tr style="background:var(--green-light)">
+        <td colspan="6" style="padding:12px 16px;font-weight:700;color:var(--green)">
+          📋 Задание сформировано из ${data.orders?.length||0} заказов · ${total} буханок · ${revenue} ₽
+          · <span style="font-size:11px;color:var(--muted)">Записано в лист «Задание на выпечку»</span>
+        </td>
+      </tr>
+      ${(data.skus||[]).map(sku => `
+        <tr>
+          <td><strong>${sku.name}</strong></td>
+          <td>—</td>
+          <td><strong style="color:var(--green)">${sku.count}</strong> шт</td>
+          <td>—</td>
+          <td><span class="stock-badge stock-ok">✓ Запланировано</span></td>
+          <td style="font-size:11px;color:var(--muted)">${[...new Set(sku.customers)].slice(0,3).join(', ')}${sku.customers.length>3?'…':''}</td>
+        </tr>`).join('')}`;
+
+    document.getElementById('stockBody').innerHTML = taskHtml;
+    toast(`✅ Задание готово: ${total} буханок на ${revenue} ₽ · Записано в Sheets`);
+  } catch(e) {
+    toast('❌ Ошибка: ' + e.message, false);
+  }
 }
 
 async function loadAll() {
