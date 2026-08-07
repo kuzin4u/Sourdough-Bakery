@@ -130,7 +130,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--oz-bg);color:var(
 </div>
 
 <script>
-const API = '__REVIEWS_API_URL__';
+const API = 'https://script.google.com/macros/s/AKfycbygMB0RJZg8tHOm1ueGdNob4ihBssXRwAK4MGwBW3Z4IT5X4qA0Guo1tqcRkWnqoBjj/exec';
 const productId = new URLSearchParams(location.search).get('id');
 
 function stars(n) { return '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n)); }
@@ -259,15 +259,23 @@ async function init() {
     document.getElementById('content').innerHTML = '<div class="error">Товар не указан. <a href="/">Вернуться в каталог</a></div>';
     return;
   }
-  if (!API || API === ('__REVIEWS_API'+'_URL__')) {
+  if (!API || !API.startsWith('http')) {
     document.getElementById('content').innerHTML = '<div class="error">API не подключен</div>';
     return;
   }
   try {
-    const r = await fetch(API + '?action=products&id=' + productId);
-    const p = await r.json();
+    const r = await fetch(API + '?action=products&id=' + encodeURIComponent(productId));
+    const data = await r.json();
+    // API может вернуть объект (один товар) или массив (все товары) — обрабатываем оба случая
+    let p = null;
+    if (Array.isArray(data)) {
+      p = data.find(x => String(x.id).trim() === String(productId).trim()) || null;
+    } else if (data && data.id) {
+      p = data;
+    }
     if (p && p.id) {
       renderProduct(p);
+      loadReviews(p.id);
     } else {
       document.getElementById('content').innerHTML = '<div class="error">Товар «' + esc(productId) + '» не найден. <a href="/">Вернуться в каталог</a></div>';
     }
