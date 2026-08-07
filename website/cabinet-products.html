@@ -340,8 +340,9 @@ function renderProducts() {
         </div>
       </div>
       <div class="pcard-actions">
-        <button class="action-btn primary" onclick="openEditModal('${p.id}')">✏️ Редактировать</button>
-        <a class="action-btn" href="card.html?id=${p.id}" target="_blank">👁 Карточка</a>
+        <button class="action-btn" onclick="openEditModal('${p.id}')">⚡ Быстрая правка</button>
+        <a class="action-btn primary" href="cabinet-card.html?id=${p.id}">✏️ Карточка</a>
+        <a class="action-btn" href="card.html?id=${p.id}" target="_blank">👁 Как у покупателя</a>
         <button class="action-btn" onclick="copyProduct('${p.id}')">📋 Копировать</button>
       </div>
     </div>`;
