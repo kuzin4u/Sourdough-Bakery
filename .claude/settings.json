@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(git push:*)",
+      "Read(./.env)",
+      "Read(./**/.env)",
+      "Read(./**/.env.*)",
+      "Edit(./**/.env)",
+      "Edit(./**/.env.*)",
+      "Read(./**/*.key)",
+      "Read(./**/*.pem)",
+      "Read(./**/secrets/**)",
+      "Bash(cat .env:*)",
+      "Bash(cat ./.env:*)"
+    ],
+    "allow": [
+      "Bash(./website/build.sh)",
+      "Bash(cd website && ./build.sh)",
+      "Bash(bash website/build.sh)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash|Read",
+        "hooks": [
+          { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard.py\"" }
+        ]
+      }
+    ]
+  }
+}
