@@ -112,7 +112,7 @@ python main.py
 Идентично Node-версии: бот раздаёт HTTP API (корзина, стоп-лист, webhook ЮKassa),
 поэтому деплоится **только как Web Service**.
 
-1. Репозиторий на GitHub → **New → Blueprint** (подхватит `render.yaml`) или вручную
+1. Репозиторий на GitHub → **New → Blueprint** (подхватит корневой `render.yaml` монорепозитория, сервис `sourdough-bakery-bot`) или вручную
    **New → Web Service**, runtime Python, build `pip install -r requirements.txt`,
    start `python main.py`.
 2. Плана: **Starter (~$7/мес)** — без "засыпания"; **Free** — с задержкой после простоя.
@@ -147,17 +147,17 @@ python main.py
 ### 5.1 Известные проблемы продакшена — уже исправлены в этой версии
 
 При первом деплое на Render может попасться один из трёх классических багов. Все три
-уже пофикшены в текущем `main.py`/`render.yaml`/`runtime.txt`, но стоит знать, на что
+уже пофикшены в текущем `main.py`/корневом `render.yaml`/`runtime.txt`, но стоит знать, на что
 смотреть в логах, если что-то пойдёт не так на вашей конкретной конфигурации:
 
 - **`RuntimeError: There is no current event loop` на Python 3.14.** Начиная с этой
   версии Python, `asyncio.get_event_loop()` больше не создаёт event loop автоматически —
   а `Application.run_polling()` внутри PTB на это рассчитывает. Исправлено двумя
-  независимыми способами: (1) `runtime.txt` и `PYTHON_VERSION` в `render.yaml` закрепляют
+  независимыми способами: (1) `runtime.txt` и `PYTHON_VERSION` в корневом `render.yaml` закрепляют
   Python 3.12.7 вместо новейшей 3.14; (2) в коде перед `run_polling()` event loop создаётся
   вручную как защита, даже если версия Python всё же окажется новее. **Важно:** при
-  деплое через Render Blueprint (`render.yaml`) файл `runtime.txt` иногда игнорируется —
-  основной механизм фиксации версии — именно переменная `PYTHON_VERSION` в `render.yaml`.
+  деплое через Render Blueprint (корневой `render.yaml`) файл `runtime.txt` иногда игнорируется —
+  основной механизм фиксации версии — именно переменная `PYTHON_VERSION` в корневом `render.yaml`.
 - **`WARNING: This is a development server` в логах.** Встроенный сервер Flask не
   предназначен для постоянной работы. Исправлено переходом на `waitress` (см. выше) —
   после этого предупреждение должно полностью исчезнуть из логов.
@@ -188,7 +188,6 @@ telegram-bot-python/
 ├── runtime.txt                — закрепляет версию Python (резервный механизм, см. 5.1)
 ├── .env.example
 ├── .gitignore
-├── render.yaml
 ├── sheets-apps-script.gs
 └── (создаются автоматически)
     orders.json, carts.json, stoplist.json, subscriptions.json,

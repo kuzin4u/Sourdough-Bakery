@@ -1,0 +1,5 @@
+# журнал хуков Claude Code
+.claude/hooks.log
+
+# системное
+.DS_Store

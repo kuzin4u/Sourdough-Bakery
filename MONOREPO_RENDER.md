@@ -58,7 +58,7 @@ services:
 
 1. **New → Web Service** → выберите репозиторий
 2. В разделе **Root Directory** впишите `telegram-bot-python` (или `telegram-bot-node`)
-3. Build/Start Command оставьте как в собственном `render.yaml` этой папки
+3. Build/Start Command — как в блоке `sourdough-bakery-bot` корневого `render.yaml`
    (`pip install -r requirements.txt` / `python main.py`)
 4. Заполните Environment переменные вручную
 5. Deploy → дождитесь адреса бота
